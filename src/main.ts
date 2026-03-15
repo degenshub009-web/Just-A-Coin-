@@ -66,9 +66,20 @@ function initParticles() {
   resize()
   window.addEventListener('resize', resize)
 
+  const heroContent = document.querySelector('.hero-content') as HTMLElement | null
+
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX
     mouseY = e.clientY
+
+    if (heroContent) {
+      const centerX = window.innerWidth / 2
+      const centerY = window.innerHeight / 2
+      const deltaX = (e.clientX - centerX) / centerX
+      const deltaY = (e.clientY - centerY) / centerY
+      
+      heroContent.style.transform = `translate(${deltaX * -15}px, ${deltaY * -15}px)`
+    }
   })
 
   // Create particles
