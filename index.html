@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$JAC — Just A Coin | Solana Meme Token</title>
+    <meta name="description" content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement — memes, giveaways, and moon missions.">
+    <link rel="icon" type="image/png" href="/jac.png">
+</head>
+<body>
+
+    <!-- PARTICLE CANVAS -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- LOADING SCREEN -->
+    <div id="loader">
+        <div class="loader-logo">$JAC</div>
+        <div class="loader-bar"></div>
+    </div>
+
+    <!-- ENTER PAGE -->
+    <div id="enter">
+        <div class="enter-content">
+            <img src="/jac.png" class="enter-coin" alt="$JAC Coin">
+            <h1 class="enter-title">$JAC</h1>
+            <p class="enter-tagline">Just A Coin</p>
+            <button id="enter-btn" class="btn btn-primary btn-pulse">ENTER SITE</button>
+        </div>
+    </div>
+
+    <!-- STICKY NAVIGATION -->
+    <nav id="navbar">
+        <a href="#hero" class="nav-logo">$JAC</a>
+        <ul class="nav-links">
+            <li><a href="#stats-bar">Stats</a></li>
+            <li><a href="#chart-section">Chart</a></li>
+            <li><a href="#leaderboard-section">Leaderboard</a></li>
+            <li><a href="#roadmap-section">Roadmap</a></li>
+        </ul>
+        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank" class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div id="main">
+
+        <!-- HERO -->
+        <section id="hero">
+            <div class="hero-gradient-blob"></div>
+            <div class="hero-gradient-blob"></div>
+            <div class="hero-content">
+                <img src="/jac.png" class="hero-coin" alt="$JAC Coin">
+                <h1 class="hero-heading">$JAC</h1>
+                <p class="hero-tagline">Literally Just A Coin — but the community is everything.</p>
+                <div class="hero-buttons">
+                    <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank" class="btn btn-primary btn-pulse" id="buy-btn">Buy on Raydium</a>
+                    <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank" class="btn btn-secondary">View on DexScreener</a>
+                    <a href="https://phantom.app" target="_blank" class="btn btn-ghost">Get Phantom Wallet →</a>
+                </div>
+                <div style="margin-top: 28px;">
+                    <button class="copy-contract" id="copy-contract-hero">
+                        <span class="copy-contract-address" id="contract-display">PLACEHOLDER…TOKEN</span>
+                        <span class="copy-contract-icon">📋</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE STATS BAR -->
+        <section id="stats-bar">
+            <div class="stats-grid">
+                <div class="glass-card stat-card reveal">
+                    <div class="stat-label">💰 Price</div>
+                    <div class="stat-value" id="stat-price">$0.00</div>
+                </div>
+                <div class="glass-card stat-card reveal">
+                    <div class="stat-label">📈 Market Cap</div>
+                    <div class="stat-value" id="stat-mcap">$0</div>
+                </div>
+                <div class="glass-card stat-card reveal">
+                    <div class="stat-label">👥 Holders</div>
+                    <div class="stat-value" id="stat-holders">0</div>
+                </div>
+                <div class="glass-card stat-card reveal">
+                    <div class="stat-label">🌐 Community</div>
+                    <div class="stat-value" id="stat-community">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE CHART -->
+        <section id="chart-section">
+            <h2 class="section-title reveal">LIVE CHART</h2>
+            <p class="section-subtitle reveal">Real-time price action on DexScreener</p>
+            <div class="chart-container reveal">
+                <div class="glass-card">
+                    <iframe
+                        id="dex-chart"
+                        src="https://dexscreener.com/solana/PLACEHOLDER_PAIR?embed=1&theme=dark&trades=0&info=0"
+                        title="$JAC DexScreener Chart"
+                        loading="lazy"
+                    ></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- MEME LEADERBOARD -->
+        <section id="leaderboard-section">
+            <h2 class="section-title reveal">🏆 MEME LEADERBOARD</h2>
+            <p class="section-subtitle reveal">Top posts about $JAC on X — most reactions wins the giveaway!</p>
+
+            <!-- Podium Top 3 -->
+            <div class="podium reveal" id="podium-container">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Remaining posts -->
+            <div class="leaderboard-list reveal" id="leaderboard-list">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="giveaway-banner reveal">
+                🎁 GIVEAWAY ACTIVE — The post with the most reactions wins. Keep posting!
+            </div>
+        </section>
+
+        <!-- ROADMAP -->
+        <section id="roadmap-section">
+            <h2 class="section-title reveal">ROADMAP</h2>
+            <p class="section-subtitle reveal">From launch to legendary</p>
+            <div class="timeline">
+
+                <!-- Phase 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-card glass-card reveal-left">
+                        <div class="timeline-icon">🚀</div>
+                        <h3 class="timeline-title">Phase 1 — Launch</h3>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Launch on Pump.fun</li>
+                                <li>Website & branding live</li>
+                                <li>Telegram & X community open</li>
+                                <li>Initial meme marketing push</li>
+                                <li>500+ holders target</li>
+                            </ul>
+                        </div>
+                        <span class="timeline-goal">GOAL: $1M MARKET CAP</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-card glass-card reveal-right">
+                        <div class="timeline-icon">🔥</div>
+                        <h3 class="timeline-title">Phase 2 — Viral Growth</h3>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Community meme raids</li>
+                                <li>Influencer promotions</li>
+                                <li>Trending on Solana meme trackers</li>
+                                <li>Meme competitions & giveaways</li>
+                                <li>Grow to 5,000+ holders</li>
+                            </ul>
+                        </div>
+                        <span class="timeline-goal">GOAL: $10M – $50M MARKET CAP</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-card glass-card reveal-left">
+                        <div class="timeline-icon">💎</div>
+                        <h3 class="timeline-title">Phase 3 — $100M Milestone</h3>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Apply for CoinGecko & CoinMarketCap</li>
+                                <li>Launch $JAC merch & NFT collection</li>
+                                <li>Large influencer partnerships</li>
+                                <li>Community events & X Spaces</li>
+                            </ul>
+                        </div>
+                        <span class="timeline-goal">GOAL: $100M MARKET CAP</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-card glass-card reveal-right">
+                        <div class="timeline-icon">🌍</div>
+                        <h3 class="timeline-title">Phase 4 — $500M Expansion</h3>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Exchange listings</li>
+                                <li>Strategic crypto partnerships</li>
+                                <li>Global meme campaigns</li>
+                                <li>Massive community growth</li>
+                            </ul>
+                        </div>
+                        <span class="timeline-goal">GOAL: $500M MARKET CAP</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+
+                <!-- Phase 5 -->
+                <div class="timeline-item">
+                    <div class="timeline-card glass-card reveal-left">
+                        <div class="timeline-icon">👑</div>
+                        <h3 class="timeline-title">Phase 5 — $1B Meme Status</h3>
+                        <div class="timeline-content">
+                            <ul>
+                                <li>Top meme coin recognition</li>
+                                <li>Major exchange listings</li>
+                                <li>Global $JAC community</li>
+                            </ul>
+                        </div>
+                        <span class="timeline-goal">GOAL: $1B MARKET CAP</span>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+
+            </div>
+            <p class="timeline-tagline reveal">"Started as Just A Coin… became a global meme."</p>
+        </section>
+
+        <!-- ABOUT & DISCLAIMER -->
+        <section id="about-section">
+            <div class="about-card glass-card reveal">
+                <h3>About $JAC</h3>
+                <p>
+                    $JAC is a community-driven meme token on the Solana blockchain. Its mission is to combine fun internet culture with crypto innovation, creating a viral ecosystem where memes drive engagement, community growth, and hype.
+                    With a transparent supply and a strong focus on social campaigns, $JAC rewards holders and meme creators alike. Its lightweight, entertaining approach keeps the community engaged while aiming for massive adoption across Solana enthusiasts and meme lovers worldwide.
+                </p>
+            </div>
+            <div class="disclaimer-card glass-card reveal">
+                <h3>Risk Disclaimer</h3>
+                <p>
+                    Cryptocurrency investments carry a high level of risk. $JAC is a meme token with no guaranteed utility or returns. Past performance is not indicative of future results.
+                    Users should do their own research (DYOR) and only invest what they can afford to lose. The creators and promoters of $JAC are not responsible for financial losses.
+                </p>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer id="footer">
+            <div class="footer-socials">
+                <a href="https://x.com/" target="_blank">𝕏 Twitter</a>
+                <a href="https://t.me/" target="_blank">✈ Telegram</a>
+                <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank">📊 DexScreener</a>
+            </div>
+            <div class="footer-contract">
+                <button class="copy-contract" id="copy-contract-footer">
+                    <span class="copy-contract-address">PLACEHOLDER…TOKEN</span>
+                    <span class="copy-contract-icon">📋</span>
+                </button>
+            </div>
+            <p class="footer-copy">© 2026 $JAC — Just A Coin. All rights reserved.</p>
+        </footer>
+
+    </div><!-- /main -->
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

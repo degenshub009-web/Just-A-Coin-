@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>$JAC — Just A Coin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Orbitron,sans-serif;
+background:#000;
+color:white;
+text-align:center;
+overflow-x:hidden;
+}
+
+.gold{color:#F7B500}
+.glow{text-shadow:0 0 20px #F7B500}
+
+section{padding:90px 20px}
+
+button{
+background:#F7B500;
+border:none;
+padding:14px 28px;
+border-radius:12px;
+font-weight:bold;
+cursor:pointer;
+margin:8px;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #F7B500;
+}
+
+.coin{
+width:220px;
+animation:spin 10s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotateY(0deg)}
+100%{transform:rotateY(360deg)}
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:30px;
+max-width:1100px;
+margin:auto;
+}
+
+.card{
+background:#111;
+padding:25px;
+border-radius:12px;
+}
+
+iframe{
+border:none;
+border-radius:10px;
+}
+
+.ticker{
+background:#111;
+padding:10px;
+font-size:14px;
+}
+
+/* MEME BACKGROUND */
+#meme-bg{
+position:fixed;
+width:100%;
+height:100%;
+top:0;
+left:0;
+z-index:-1;
+overflow:hidden;
+}
+.meme{
+position:absolute;
+font-size:28px;
+opacity:0.15;
+animation:float linear infinite;
+}
+@keyframes float{
+0%{transform:translateY(100vh)}
+100%{transform:translateY(-120vh)}
+}
+
+/* ROADMAP */
+.roadmap{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:25px;
+max-width:1000px;
+margin:auto;
+}
+.phase{
+background:#111;
+padding:30px;
+border-radius:14px;
+border:1px solid #222;
+}
+.phase h3{
+color:#F7B500;
+margin-bottom:15px;
+}
+
+/* BUY PANEL */
+.buybox{
+max-width:420px;
+margin:auto;
+background:#111;
+padding:35px;
+border-radius:16px;
+border:1px solid #222;
+}
+.stat{
+font-size:20px;
+margin:10px 0;
+}
+
+/* DESCRIPTION & DISCLAIMER */
+.description, .disclaimer{
+max-width:700px;
+margin:40px auto;
+padding:25px;
+background:#111;
+border-radius:12px;
+border:1px solid #222;
+text-align:left;
+line-height:1.6em;
+}
+.description h3, .disclaimer h3{
+color:#F7B500;
+margin-bottom:15px;
+}
+</style>
+
+</head>
+<body>
+
+<div id="meme-bg"></div>
+
+<div class="ticker">
+$JAC — Just A Coin
+</div>
+
+<!-- ENTER PAGE -->
+<div id="enter">
+<section>
+<img src="jac.png" class="coin">
+<h1 class="gold glow">$JAC</h1>
+<p>Just A Coin</p>
+<button onclick="enterSite()">ENTER WEBSITE</button>
+</section>
+</div>
+
+<!-- MAIN WEBSITE -->
+<div id="main" style="display:none">
+
+<section>
+<img src="jac.png" class="coin">
+<h1 class="gold glow" style="font-size:70px">$JAC</h1>
+<p>Literally Just A Coin</p>
+<button onclick="raid()">RAID ON X</button>
+</section>
+
+<!-- LIVE STATS -->
+<section>
+<h2>LIVE STATS</h2>
+<div class="stat">
+Holders: <span id="holders">Loading...</span>
+</div>
+</section>
+
+<!-- BUY WIDGET -->
+<section>
+<h2>BUY $JAC</h2>
+<div class="buybox">
+<p>Trade $JAC instantly on Raydium.</p>
+<button onclick="buy()">BUY ON RAYDIUM</button>
+<br>
+<a href="https://phantom.app" target="_blank"><button>GET PHANTOM WALLET</button></a>
+</div>
+</section>
+
+<!-- COUNTDOWN -->
+<section>
+<h2>LAUNCH COUNTDOWN</h2>
+<h1 id="countdown"></h1>
+</section>
+
+<!-- CHART -->
+<section id="chart">
+<h2>LIVE CHART</h2>
+<iframe src="https://dexscreener.com/solana/YOURPAIR" width="90%" height="550"></iframe>
+</section>
+
+<!-- MEME LEADERBOARD -->
+<section>
+<h2>MEME LEADERBOARD</h2>
+<div class="grid" id="memes"></div>
+</section>
+
+<!-- ROADMAP -->
+<section>
+<h2>ROADMAP</h2>
+<div class="roadmap">
+<div class="phase">
+<h3>PHASE 1 — LAUNCH</h3>
+<p>Launch on Solana<br>Website + Meme Leaderboard<br>First 5K holders</p>
+</div>
+<div class="phase">
+<h3>PHASE 2 — VIRAL</h3>
+<p>Meme competitions<br>Trending on X<br>25K holders</p>
+</div>
+<div class="phase">
+<h3>PHASE 3 — EXPANSION</h3>
+<p>Partnerships<br>Meme generator<br>100K holders</p>
+</div>
+<div class="phase">
+<h3>PHASE 4 — GLOBAL MEME</h3>
+<p>Influencer campaigns<br>Major exchange listings<br>$500M+ market cap goal</p>
+</div>
+</div>
+</section>
+
+<!-- TOKEN DESCRIPTION -->
+<section class="description">
+<h3>$JAC Token Description</h3>
+<p>
+$JAC is a community-driven meme token on the Solana blockchain. Its mission is to combine fun internet culture with crypto innovation, creating a viral ecosystem where memes drive engagement, community growth, and hype.  
+With a transparent supply and a strong focus on social campaigns, $JAC rewards holders and meme creators alike. Its lightweight, entertaining approach keeps the community engaged while aiming for massive adoption across Solana enthusiasts and meme lovers worldwide.
+</p>
+</section>
+
+<!-- RISK DISCLAIMER -->
+<section class="disclaimer">
+<h3>Risk Disclaimer</h3>
+<p>
+Cryptocurrency investments carry a high level of risk. $JAC is a meme token with no guaranteed utility or returns. Past performance is not indicative of future results. 
+Users should do their own research (DYOR) and only invest what they can afford to lose. The creators and promoters of $JAC are not responsible for financial losses.
+</p>
+</section>
+
+</div>
+
+<script>
+
+/* ENTER */
+function enterSite(){
+document.getElementById("enter").style.display="none"
+document.getElementById("main").style.display="block"
+}
+
+/* BUY */
+function buy(){
+confetti({particleCount:200,spread:120})
+window.open(
+"https://raydium.io/swap/?inputCurrency=sol&outputCurrency=YOURTOKEN",
+"_blank"
+)
+}
+
+/* RAID */
+function raid(){
+window.open(
+"https://twitter.com/intent/tweet?text=$JAC%20Just%20A%20Coin%20🚀",
+"_blank"
+)
+}
+
+/* COUNTDOWN */
+const launchDate=new Date("2026-04-01T00:00:00").getTime()
+setInterval(()=>{
+const now=new Date().getTime()
+const distance=launchDate-now
+const d=Math.floor(distance/(1000*60*60*24))
+const h=Math.floor((distance%(1000*60*60*24))/(1000*60*60))
+const m=Math.floor((distance%(1000*60*60))/(1000*60))
+const s=Math.floor((distance%(1000*60))/1000)
+document.getElementById("countdown").innerHTML=d+"D "+h+"H "+m+"M "+s+"S"
+},1000)
+
+/* MEME BACKGROUND */
+const emojis=["😂","🚀","💎","🐸","🔥","🪙"]
+function createEmoji(){
+let e=document.createElement("div")
+e.className="meme"
+e.innerText=emojis[Math.floor(Math.random()*emojis.length)]
+e.style.left=Math.random()*100+"vw"
+e.style.animationDuration=8+Math.random()*10+"s"
+document.getElementById("meme-bg").appendChild(e)
+setTimeout(()=>e.remove(),18000)
+}
+setInterval(createEmoji,400)
+
+/* HOLDER COUNT */
+async function loadHolders(){
+try{
+let r=await fetch(
+"https://public-api.solscan.io/token/holders?tokenAddress=YOURTOKEN&limit=1"
+)
+let j=await r.json()
+document.getElementById("holders").innerText=j.total
+}catch{
+document.getElementById("holders").innerText="Loading..."
+}
+}
+setInterval(loadHolders,20000)
+loadHolders()
+
+/* SAMPLE MEMES */
+const memes=[
+{text:"$JAC to the moon 🚀",likes:1400},
+{text:"Best meme coin on Solana 😂",likes:1200},
+{text:"Diamond hands $JAC 💎",likes:900}
+]
+memes.sort((a,b)=>b.likes-a.likes)
+const container=document.getElementById("memes")
+memes.forEach(m=>{
+container.innerHTML+=`
+<div class="card">
+<p>${m.text}</p>
+<p>❤️ ${m.likes}</p>
+</div>
+`
+})
+</script>
+
+</body>
+</html>
