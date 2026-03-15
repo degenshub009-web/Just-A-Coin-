@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$JAC — Just A Coin | Solana Meme Token</title>
-    <meta name="description" content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement — memes, giveaways, and moon missions.">
+    <meta name="description"
+        content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement — memes, giveaways, and moon missions.">
     <link rel="icon" type="image/png" href="/jac.png">
 </head>
+
 <body>
 
     <!-- PARTICLE CANVAS -->
@@ -20,12 +23,12 @@
 
     <!-- ENTER PAGE -->
     <div id="enter">
+        <video id="enter-video" src="/JAC-video.mp4" autoplay loop muted playsinline></video>
         <div class="enter-content">
-            <img src="/jac.png" class="enter-coin" alt="$JAC Coin">
-            <h1 class="enter-title">$JAC</h1>
-            <p class="enter-tagline">Just A Coin</p>
-            <button id="enter-btn" class="btn btn-primary btn-pulse">ENTER SITE</button>
+            <h1 class="enter-tagline">Just A Coin</h1>
+            <button id="enter-btn" class="btn btn-primary btn-pulse">ENTER WEBSITE</button>
         </div>
+        <button id="unmute-btn" class="unmute-btn">🔇 Unmute</button>
     </div>
 
     <!-- STICKY NAVIGATION -->
@@ -37,7 +40,8 @@
             <li><a href="#leaderboard-section">Leaderboard</a></li>
             <li><a href="#roadmap-section">Roadmap</a></li>
         </ul>
-        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank" class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
+        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank"
+            class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -52,8 +56,10 @@
                 <h1 class="hero-heading">$JAC</h1>
                 <p class="hero-tagline">Literally Just A Coin — but the community is everything.</p>
                 <div class="hero-buttons">
-                    <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank" class="btn btn-primary btn-pulse" id="buy-btn">Buy on Raydium</a>
-                    <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank" class="btn btn-secondary">View on DexScreener</a>
+                    <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN"
+                        target="_blank" class="btn btn-primary btn-pulse" id="buy-btn">Buy on Raydium</a>
+                    <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank"
+                        class="btn btn-secondary">View on DexScreener</a>
                     <a href="https://phantom.app" target="_blank" class="btn btn-ghost">Get Phantom Wallet →</a>
                 </div>
                 <div style="margin-top: 28px;">
@@ -93,12 +99,9 @@
             <p class="section-subtitle reveal">Real-time price action on DexScreener</p>
             <div class="chart-container reveal">
                 <div class="glass-card">
-                    <iframe
-                        id="dex-chart"
+                    <iframe id="dex-chart"
                         src="https://dexscreener.com/solana/PLACEHOLDER_PAIR?embed=1&theme=dark&trades=0&info=0"
-                        title="$JAC DexScreener Chart"
-                        loading="lazy"
-                    ></iframe>
+                        title="$JAC DexScreener Chart" loading="lazy"></iframe>
                 </div>
             </div>
         </section>
@@ -227,17 +230,30 @@
         <!-- ABOUT & DISCLAIMER -->
         <section id="about-section">
             <div class="about-card glass-card reveal">
-                <h3>About $JAC</h3>
-                <p>
-                    $JAC is a community-driven meme token on the Solana blockchain. Its mission is to combine fun internet culture with crypto innovation, creating a viral ecosystem where memes drive engagement, community growth, and hype.
-                    With a transparent supply and a strong focus on social campaigns, $JAC rewards holders and meme creators alike. Its lightweight, entertaining approach keeps the community engaged while aiming for massive adoption across Solana enthusiasts and meme lovers worldwide.
-                </p>
+                <div class="about-grid">
+                    <div class="about-image-container">
+                        <img src="/IMG_2923.PNG.png" alt="About $JAC" class="about-image">
+                    </div>
+                    <div class="about-text-content">
+                        <h3>About $JAC</h3>
+                        <p>
+                            $JAC is a community-driven meme token on the Solana blockchain. Its mission is to combine
+                            fun internet culture with crypto innovation, creating a viral ecosystem where memes drive
+                            engagement, community growth, and hype.
+                            With a transparent supply and a strong focus on social campaigns, $JAC rewards holders and
+                            meme creators alike. Its lightweight, entertaining approach keeps the community engaged
+                            while aiming for massive adoption across Solana enthusiasts and meme lovers worldwide.
+                        </p>
+                    </div>
+                </div>
             </div>
             <div class="disclaimer-card glass-card reveal">
                 <h3>Risk Disclaimer</h3>
                 <p>
-                    Cryptocurrency investments carry a high level of risk. $JAC is a meme token with no guaranteed utility or returns. Past performance is not indicative of future results.
-                    Users should do their own research (DYOR) and only invest what they can afford to lose. The creators and promoters of $JAC are not responsible for financial losses.
+                    Cryptocurrency investments carry a high level of risk. $JAC is a meme token with no guaranteed
+                    utility or returns. Past performance is not indicative of future results.
+                    Users should do their own research (DYOR) and only invest what they can afford to lose. The creators
+                    and promoters of $JAC are not responsible for financial losses.
                 </p>
             </div>
         </section>
@@ -262,4 +278,5 @@
 
     <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>

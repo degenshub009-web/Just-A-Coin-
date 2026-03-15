@@ -120,6 +120,21 @@ initParticles()
 /* ============================================
    3. ENTER PAGE — Cinematic transition
    ============================================ */
+const unmuteBtn = $('unmute-btn')
+const enterVideo = $('enter-video') as HTMLVideoElement | null
+
+if (unmuteBtn && enterVideo) {
+  unmuteBtn.addEventListener('click', () => {
+    if (enterVideo.muted) {
+      enterVideo.muted = false
+      unmuteBtn.innerHTML = '🔊 Mute'
+    } else {
+      enterVideo.muted = true
+      unmuteBtn.innerHTML = '🔇 Unmute'
+    }
+  })
+}
+
 if (enterBtn && enterDiv && mainDiv) {
   enterBtn.addEventListener('click', () => {
     // Play confetti
@@ -129,6 +144,10 @@ if (enterBtn && enterDiv && mainDiv) {
       origin: { y: 0.6 },
       colors: ['#F7B500', '#FFD54F', '#C48E00'],
     })
+
+    if (enterVideo) {
+      enterVideo.pause()
+    }
 
     // Fade out enter page
     enterDiv.classList.add('exit')
