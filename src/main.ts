@@ -31,9 +31,7 @@ const buyBtn = $('buy-btn')
    1. LOADING SCREEN
    ============================================ */
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    loader?.classList.add('hidden')
-  }, 1200)
+  loader?.classList.add('hidden')
 })
 
 /* ============================================
@@ -163,15 +161,17 @@ if (enterBtn && enterDiv && mainDiv) {
     // Fade out enter page
     enterDiv.classList.add('exit')
 
+    // Show main page immediately while enter screen fades
+    enterDiv.style.pointerEvents = 'none'
+    mainDiv.classList.add('active')
+    
+    // Trigger reveal animations
+    requestAnimationFrame(() => {
+      initScrollReveal()
+    })
+
     setTimeout(() => {
       enterDiv.style.display = 'none'
-      mainDiv.classList.add('active')
-      // Trigger reveal animations after a frame
-      requestAnimationFrame(() => {
-        initScrollReveal()
-        loadStats()
-        loadLeaderboard()
-      })
     }, 800)
   })
 }
@@ -181,22 +181,15 @@ if (enterBtn && enterDiv && mainDiv) {
    ============================================ */
 function initStickyNav() {
   if (!navbar) return
-  const heroSection = $('hero')
-  if (!heroSection) return
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          navbar.classList.remove('visible')
-        } else {
-          navbar.classList.add('visible')
-        }
-      })
-    },
-    { threshold: 0.1 }
-  )
-  observer.observe(heroSection)
+  
+  // Show nav bar as soon as the user starts scrolling down (which is when the stats bar starts coming up)
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('visible')
+    } else {
+      navbar.classList.remove('visible')
+    }
+  }, { passive: true })
 }
 
 // Init after main is shown
@@ -300,13 +293,13 @@ interface LeaderboardPost {
 
 // Mock data (used when X API isn't configured)
 const MOCK_POSTS: LeaderboardPost[] = [
-  { id: '1', text: '$JAC is going to the moon 🚀🚀🚀 this is the one!! #JustACoin #Solana', likes: 2847, author: '@crypto_whale' },
-  { id: '2', text: 'Just aped into $JAC 💎🙌 the community is insane. LFG!!!', likes: 1923, author: '@degen_trader' },
-  { id: '3', text: 'If you\'re sleeping on $JAC you\'re ngmi 😂 best meme coin on SOL right now', likes: 1456, author: '@sol_maxi' },
-  { id: '4', text: '$JAC holders are true diamond hands. This community doesn\'t fold 🔥', likes: 987, author: '@meme_lord' },
-  { id: '5', text: 'Literally just a coin but the vibes are immaculate 🪙✨ $JAC', likes: 743, author: '@alpha_caller' },
-  { id: '6', text: '$JAC x Solana = unstoppable combo 🌐 wen $1B?', likes: 612, author: '@sol_degen99' },
-  { id: '7', text: 'Bought the dip on $JAC — again. This is the way 📈', likes: 534, author: '@buythedip' },
+  { id: '1', text: '$JAC is going to the moon 🚀🚀🚀 this is the one!! #JustACoin #Solana', likes: 2847, author: '@crypto_whale', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=whale' },
+  { id: '2', text: 'Just aped into $JAC 💎🙌 the community is insane. LFG!!!', likes: 1923, author: '@degen_trader', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=degen' },
+  { id: '3', text: 'If you\'re sleeping on $JAC you\'re ngmi 😂 best meme coin on SOL right now', likes: 1456, author: '@sol_maxi', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=maxi' },
+  { id: '4', text: '$JAC holders are true diamond hands. This community doesn\'t fold 🔥', likes: 987, author: '@meme_lord', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=lord' },
+  { id: '5', text: 'Literally just a coin but the vibes are immaculate 🪙✨ $JAC', likes: 743, author: '@alpha_caller', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=alpha' },
+  { id: '6', text: '$JAC x Solana = unstoppable combo 🌐 wen $1B?', likes: 612, author: '@sol_degen99', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=sol' },
+  { id: '7', text: 'Bought the dip on $JAC — again. This is the way 📈', likes: 534, author: '@buythedip', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=dip' },
 ]
 
 async function fetchFromXApi(): Promise<LeaderboardPost[]> {
@@ -392,11 +385,15 @@ async function loadLeaderboard() {
       (post, i) => `
     <div class="glass-card leaderboard-item">
       <div class="leaderboard-item-rank">#${i + 4}</div>
+      ${post.authorAvatar
+        ? `<img src="${post.authorAvatar}" class="podium-avatar" style="width: 36px; height: 36px; margin: 0;" alt="${post.author}">`
+        : `<div class="podium-avatar" style="width: 36px; height: 36px; margin: 0;"></div>`
+      }
       <div class="leaderboard-item-content">
         <div class="leaderboard-item-handle">${post.author}</div>
         <div class="leaderboard-item-text">${post.text.slice(0, 100)}${post.text.length > 100 ? '…' : ''}</div>
       </div>
-      <div class="leaderboard-item-likes">❤️ ${post.likes.toLocaleString()}</div>
+      <div class="leaderboard-item-likes" style="display: flex; align-items: center;">❤️ ${post.likes.toLocaleString()}</div>
     </div>
   `
     )
@@ -410,17 +407,25 @@ function initCopyContract() {
   const buttons = document.querySelectorAll('.copy-contract')
 
   buttons.forEach((btn) => {
+    let timeoutId: any;
+    
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(CONFIG.FULL_CONTRACT)
         btn.classList.add('copied')
         const icon = btn.querySelector('.copy-contract-icon')
+        const addressText = btn.querySelector('.copy-contract-address')
+        
         if (icon) icon.textContent = '✅'
+        if (addressText) addressText.textContent = 'COPIED!'
 
-        setTimeout(() => {
+        if (timeoutId) clearTimeout(timeoutId);
+
+        timeoutId = setTimeout(() => {
           btn.classList.remove('copied')
           if (icon) icon.textContent = '📋'
-        }, 2000)
+          if (addressText) addressText.textContent = CONFIG.CONTRACT_DISPLAY
+        }, 4000)
       } catch (e) {
         console.error('Failed to copy:', e)
       }
@@ -441,6 +446,8 @@ function initScrollReveal() {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible')
+        } else {
+          entry.target.classList.remove('visible')
         }
       })
     },
@@ -467,3 +474,7 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
     }
   })
 })
+
+// Start loading data in the background immediately
+loadStats()
+loadLeaderboard()
