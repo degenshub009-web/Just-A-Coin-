@@ -8,60 +8,83 @@
     <meta name="description"
         content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement — memes, giveaways, and moon missions.">
     <link rel="icon" type="image/png" href="/jac.png">
-    
+
     <!-- Preload critical assets -->
     <link rel="preload" href="/JAC-video.mp4" as="video" type="video/mp4">
     <link rel="preload" href="/jac.png" as="image">
 
     <style>
-      :root {
-        --bg-primary: #0a0a14;
-        --gold: #F7B500;
-        --gold-glow: rgba(247, 181, 0, 0.4);
-        --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
-      }
-      body {
-        margin: 0;
-        background: var(--bg-primary);
-        overflow-x: hidden;
-      }
-      #loader {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: var(--bg-primary);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
-      }
-      #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-      .loader-logo {
-        font-family: var(--font-display);
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--gold);
-        text-shadow: 0 0 30px var(--gold-glow);
-        letter-spacing: 0.1em;
-      }
-      .loader-bar {
-        width: 200px; height: 3px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 3px;
-        overflow: hidden;
-        margin-top: 24px;
-      }
-      .loader-bar::after {
-        content: ''; display: block; width: 40%; height: 100%;
-        background: linear-gradient(135deg, #F7B500 0%, #FFD54F 50%, #F7B500 100%);
-        border-radius: 3px;
-        animation: shimmerBar 1.2s ease-in-out infinite;
-      }
-      @keyframes shimmerBar {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(350%); }
-      }
+        :root {
+            --bg-primary: #0a0a14;
+            --gold: #F7B500;
+            --gold-glow: rgba(247, 181, 0, 0.4);
+            --font-display: 'Orbitron', 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-logo {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--gold);
+            text-shadow: 0 0 30px var(--gold-glow);
+            letter-spacing: 0.1em;
+        }
+
+        .loader-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 24px;
+        }
+
+        .loader-bar::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(135deg, #F7B500 0%, #FFD54F 50%, #F7B500 100%);
+            border-radius: 3px;
+            animation: shimmerBar 1.2s ease-in-out infinite;
+        }
+
+        @keyframes shimmerBar {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(350%);
+            }
+        }
     </style>
 </head>
 
@@ -95,8 +118,8 @@
             <li><a href="#leaderboard-section">Leaderboard</a></li>
             <li><a href="#roadmap-section">Roadmap</a></li>
         </ul>
-        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN" target="_blank"
-            class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
+        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
+            target="_blank" class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -109,17 +132,18 @@
             <div class="hero-content">
                 <img src="/jac.png" class="hero-coin" alt="$JAC Coin">
                 <h1 class="hero-heading">$JAC</h1>
-                <p class="hero-tagline">Literally Just A Coin — but the <span class="text-highlight">community</span> is everything.</p>
+                <p class="hero-tagline">Literally Just A Coin — but the <span class="text-highlight">community</span> is
+                    everything.</p>
                 <div class="hero-buttons">
-                    <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=PLACEHOLDER_TOKEN"
+                    <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
                         target="_blank" class="btn btn-primary btn-pulse" id="buy-btn">Buy on Raydium</a>
-                    <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank"
+                    <a href="https://dexscreener.com/solana/EAFYaifYf6oFhupfjFWkfAY7bD8S1H6VDsYboAaKzuat" target="_blank"
                         class="btn btn-secondary">View on DexScreener</a>
                     <a href="https://phantom.app" target="_blank" class="btn btn-ghost">Get Phantom Wallet →</a>
                 </div>
                 <div style="margin-top: 28px;">
                     <button class="copy-contract" id="copy-contract-hero">
-                        <span class="copy-contract-address" id="contract-display">PLACEHOLDER…TOKEN</span>
+                        <span class="copy-contract-address" id="contract-display">E714…pump</span>
                         <span class="copy-contract-icon">📋</span>
                     </button>
                 </div>
@@ -155,7 +179,7 @@
             <div class="chart-container reveal">
                 <div class="glass-card">
                     <iframe id="dex-chart"
-                        src="https://dexscreener.com/solana/PLACEHOLDER_PAIR?embed=1&theme=dark&trades=0&info=0"
+                        src="https://dexscreener.com/solana/EAFYaifYf6oFhupfjFWkfAY7bD8S1H6VDsYboAaKzuat?embed=1&theme=dark&trades=0&info=0"
                         title="$JAC DexScreener Chart" loading="lazy"></iframe>
                 </div>
             </div>
@@ -297,7 +321,8 @@
                             engagement, community growth, and hype.
                         </p>
                         <p style="margin-top: 16px;">
-                            With a <strong style="color: #fff">transparent supply</strong> and a strong focus on <strong style="color: #fff">social campaigns</strong>, $JAC rewards holders and
+                            With a <strong style="color: #fff">transparent supply</strong> and a strong focus on <strong
+                                style="color: #fff">social campaigns</strong>, $JAC rewards holders and
                             meme creators alike. Its lightweight, entertaining approach keeps the community engaged
                             while aiming for massive adoption across Solana enthusiasts and meme lovers worldwide.
                         </p>
@@ -320,11 +345,11 @@
             <div class="footer-socials">
                 <a href="https://x.com/" target="_blank">𝕏 Twitter</a>
                 <a href="https://t.me/" target="_blank">✈ Telegram</a>
-                <a href="https://dexscreener.com/solana/PLACEHOLDER_PAIR" target="_blank">📊 DexScreener</a>
+                <a href="https://dexscreener.com/solana/EAFYaifYf6oFhupfjFWkfAY7bD8S1H6VDsYboAaKzuat" target="_blank">📊 DexScreener</a>
             </div>
             <div class="footer-contract">
                 <button class="copy-contract" id="copy-contract-footer">
-                    <span class="copy-contract-address">PLACEHOLDER…TOKEN</span>
+                    <span class="copy-contract-address">E714…pump</span>
                     <span class="copy-contract-icon">📋</span>
                 </button>
             </div>

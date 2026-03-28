@@ -5,10 +5,10 @@ import confetti from 'canvas-confetti'
    CONFIG — Replace with real values at launch
    ============================================ */
 const CONFIG = {
-  TOKEN_ADDRESS: 'PLACEHOLDER_TOKEN_ADDRESS_HERE',
-  PAIR_ADDRESS: 'PLACEHOLDER_PAIR_ADDRESS',
-  CONTRACT_DISPLAY: 'PLACEHOLDER…TOKEN',
-  FULL_CONTRACT: 'PLACEHOLDER_TOKEN_ADDRESS_HERE',
+  TOKEN_ADDRESS: 'E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump',
+  PAIR_ADDRESS: 'EAFYaifYf6oFhupfjFWkfAY7bD8S1H6VDsYboAaKzuat',
+  CONTRACT_DISPLAY: 'E714…pump',
+  FULL_CONTRACT: 'E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
   COMMUNITY_COUNT: 1337,
@@ -249,18 +249,9 @@ async function loadStats() {
     if (mcapEl) mcapEl.textContent = '$0'
   }
 
-  // Solscan API for holder count
-  try {
-    const res = await fetch(
-      `https://public-api.solscan.io/token/holders?tokenAddress=${CONFIG.TOKEN_ADDRESS}&limit=1`
-    )
-    const data = await res.json()
-    if (data.total && holdersEl) {
-      animateCounter(holdersEl, data.total)
-    }
-  } catch {
-    if (holdersEl) holdersEl.textContent = '—'
-  }
+  // Holder count — Solscan public API is deprecated (requires paid API key now).
+  // Show a dash until a proper data source is configured.
+  if (holdersEl) holdersEl.textContent = '—'
 }
 
 // Auto-refresh stats every 30s
