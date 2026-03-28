@@ -255,8 +255,9 @@ async function loadStats() {
 
   // Helius API for holder count
   try {
+    const apiKey = import.meta.env.VITE_HELIUS_API_KEY || 'e57d5c45-a5f7-4506-a38b-a53700dbecd8';
     const res = await fetch(
-      `https://mainnet.helius-rpc.com/?api-key=e57d5c45-a5f7-4506-a38b-a53700dbecd8`,
+      `https://mainnet.helius-rpc.com/?api-key=${apiKey}`,
       {
         method: 'POST',
         headers: {
