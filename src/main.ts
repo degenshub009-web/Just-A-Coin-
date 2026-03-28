@@ -11,7 +11,7 @@ const CONFIG = {
   FULL_CONTRACT: 'E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
-  COMMUNITY_COUNT: 1337,
+  COMMUNITY_COUNT: 55,
 }
 
 /* ============================================
@@ -75,7 +75,7 @@ function initParticles() {
       const centerY = window.innerHeight / 2
       const deltaX = (e.clientX - centerX) / centerX
       const deltaY = (e.clientY - centerY) / centerY
-      
+
       heroContent.style.transform = `translate(${deltaX * -15}px, ${deltaY * -15}px)`
     }
   })
@@ -164,7 +164,7 @@ if (enterBtn && enterDiv && mainDiv) {
     // Show main page immediately while enter screen fades
     enterDiv.style.pointerEvents = 'none'
     mainDiv.classList.add('active')
-    
+
     // Trigger reveal animations
     requestAnimationFrame(() => {
       initScrollReveal()
@@ -181,7 +181,7 @@ if (enterBtn && enterDiv && mainDiv) {
    ============================================ */
 function initStickyNav() {
   if (!navbar) return
-  
+
   // Show nav bar as soon as the user starts scrolling down (which is when the stats bar starts coming up)
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
@@ -215,7 +215,11 @@ function animateCounter(el: HTMLElement, target: number, prefix = '', suffix = '
     // ease-out quad
     const ease = 1 - (1 - progress) * (1 - progress)
     const current = target * ease
-    el.textContent = prefix + current.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix
+
+    const parts = current.toFixed(decimals).split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    el.textContent = prefix + parts.join('.') + suffix
+
     if (progress < 1) requestAnimationFrame(tick)
   }
   requestAnimationFrame(tick)
@@ -249,9 +253,37 @@ async function loadStats() {
     if (mcapEl) mcapEl.textContent = '$0'
   }
 
-  // Holder count — Solscan public API is deprecated (requires paid API key now).
-  // Show a dash until a proper data source is configured.
-  if (holdersEl) holdersEl.textContent = '—'
+  // Helius API for holder count
+  try {
+    const res = await fetch(
+      `https://mainnet.helius-rpc.com/?api-key=e57d5c45-a5f7-4506-a38b-a53700dbecd8`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getTokenAccounts',
+          params: {
+            mint: CONFIG.TOKEN_ADDRESS
+          },
+        }),
+      }
+    )
+    if (res.ok) {
+      const data = await res.json()
+      if (data?.result?.total !== undefined && holdersEl) {
+        // Helius returns total token accounts
+        animateCounter(holdersEl, data.result.total)
+      }
+    } else {
+      if (holdersEl) holdersEl.textContent = '—'
+    }
+  } catch (e) {
+    if (holdersEl) holdersEl.textContent = '—'
+  }
 }
 
 // Auto-refresh stats every 30s
@@ -360,9 +392,9 @@ async function loadLeaderboard() {
     <div class="glass-card podium-card ${rankClasses[i]}">
       <div class="podium-rank">${rankEmojis[i]}</div>
       ${post.authorAvatar
-        ? `<img src="${post.authorAvatar}" class="podium-avatar" alt="${post.author}">`
-        : `<div class="podium-avatar"></div>`
-      }
+          ? `<img src="${post.authorAvatar}" class="podium-avatar" alt="${post.author}">`
+          : `<div class="podium-avatar"></div>`
+        }
       <div class="podium-handle">${post.author}</div>
       <div class="podium-text">${post.text.slice(0, 120)}${post.text.length > 120 ? '…' : ''}</div>
       <div class="podium-likes">❤️ ${post.likes.toLocaleString()}</div>
@@ -377,9 +409,9 @@ async function loadLeaderboard() {
     <div class="glass-card leaderboard-item">
       <div class="leaderboard-item-rank">#${i + 4}</div>
       ${post.authorAvatar
-        ? `<img src="${post.authorAvatar}" class="podium-avatar" style="width: 36px; height: 36px; margin: 0;" alt="${post.author}">`
-        : `<div class="podium-avatar" style="width: 36px; height: 36px; margin: 0;"></div>`
-      }
+          ? `<img src="${post.authorAvatar}" class="podium-avatar" style="width: 36px; height: 36px; margin: 0;" alt="${post.author}">`
+          : `<div class="podium-avatar" style="width: 36px; height: 36px; margin: 0;"></div>`
+        }
       <div class="leaderboard-item-content">
         <div class="leaderboard-item-handle">${post.author}</div>
         <div class="leaderboard-item-text">${post.text.slice(0, 100)}${post.text.length > 100 ? '…' : ''}</div>
@@ -399,14 +431,14 @@ function initCopyContract() {
 
   buttons.forEach((btn) => {
     let timeoutId: any;
-    
+
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(CONFIG.FULL_CONTRACT)
         btn.classList.add('copied')
         const icon = btn.querySelector('.copy-contract-icon')
         const addressText = btn.querySelector('.copy-contract-address')
-        
+
         if (icon) icon.textContent = '✅'
         if (addressText) addressText.textContent = 'COPIED!'
 
