@@ -11,7 +11,7 @@ const CONFIG = {
   FULL_CONTRACT: 'E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
-  COMMUNITY_COUNT: 136,
+  COMMUNITY_COUNT: 333,
 }
 
 /* ============================================
