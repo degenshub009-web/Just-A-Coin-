@@ -9,9 +9,11 @@ const CONFIG = {
   PAIR_ADDRESS: 'Ddvid1rXpEsbXh7zjdjVGW4Tu7pKHstMVZ5M5znxCg8a',
   CONTRACT_DISPLAY: 'E714…pump',
   FULL_CONTRACT: 'E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump',
+  COMMUNITY_WALLET_DISPLAY: '69jz…7zug',
+  COMMUNITY_WALLET_FULL: '69jzVYz3bykcB2PQnEtZSUuxx6jtuuNJiuogKQ2H7zug',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
-  COMMUNITY_COUNT: 333,
+  COMMUNITY_COUNT: 501,
 }
 
 /* ============================================
@@ -425,7 +427,7 @@ async function loadLeaderboard() {
 }
 
 /* ============================================
-   8. COPY CONTRACT ADDRESS
+   8. COPY BUTTONS (Contract & Wallet)
    ============================================ */
 function initCopyContract() {
   const buttons = document.querySelectorAll('.copy-contract')
@@ -435,7 +437,10 @@ function initCopyContract() {
 
     btn.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(CONFIG.FULL_CONTRACT)
+        const isWallet = btn.id === 'copy-wallet-btn'
+        const textToCopy = isWallet ? CONFIG.COMMUNITY_WALLET_FULL : CONFIG.FULL_CONTRACT
+
+        await navigator.clipboard.writeText(textToCopy)
         btn.classList.add('copied')
         const icon = btn.querySelector('.copy-contract-icon')
         const addressText = btn.querySelector('.copy-contract-address')
@@ -448,7 +453,7 @@ function initCopyContract() {
         timeoutId = setTimeout(() => {
           btn.classList.remove('copied')
           if (icon) icon.textContent = '📋'
-          if (addressText) addressText.textContent = CONFIG.CONTRACT_DISPLAY
+          if (addressText) addressText.textContent = isWallet ? CONFIG.COMMUNITY_WALLET_DISPLAY : CONFIG.CONTRACT_DISPLAY
         }, 4000)
       } catch (e) {
         console.error('Failed to copy:', e)
