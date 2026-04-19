@@ -13,7 +13,7 @@ const CONFIG = {
   COMMUNITY_WALLET_FULL: '69jzVYz3bykcB2PQnEtZSUuxx6jtuuNJiuogKQ2H7zug',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
-  COMMUNITY_COUNT: 501,
+  COMMUNITY_COUNT: 503,
 }
 
 /* ============================================
