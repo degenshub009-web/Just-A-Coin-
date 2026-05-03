@@ -66,6 +66,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent page-width shift when scrollbar appears/disappears */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -121,6 +123,19 @@ p {
 section {
   padding: var(--section-padding);
   position: relative;
+  /* Offset anchor scroll to clear the fixed navbar (navbar ~48px + breathing room) */
+  scroll-margin-top: 64px;
+}
+
+/* Named anchor targets that aren't <section> elements */
+#stats-bar,
+#chart-section,
+#dashboard-section,
+#leaderboard-section,
+#roadmap-section,
+#community-wallet,
+#about-section {
+  scroll-margin-top: 64px;
 }
 
 .section-title {
@@ -600,6 +615,15 @@ section {
   margin-top: 8px;
   padding: 14px 40px;
   font-size: 0.9rem;
+  /* Darker, less blinding gold against the dark overlay */
+  background: linear-gradient(135deg, #A87800 0%, #C49200 50%, #A87800 100%);
+  box-shadow: 0 4px 20px rgba(168, 120, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+}
+.nav-mobile-menu .nav-mobile-cta:hover {
+  background: linear-gradient(135deg, #B98A00 0%, #D4A200 50%, #B98A00 100%);
+  box-shadow: 0 6px 28px rgba(168, 120, 0, 0.5);
+  transform: translateY(-2px) scale(1.02);
 }
 /* Subtle decorative dots */
 .nav-mobile-menu::before {
@@ -1364,15 +1388,25 @@ section {
 
 .stat-value {
   text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  /* Prevent layout shift when numeric content changes */
+  font-variant-numeric: tabular-nums;
+  display: block;
+  width: 100%;
 }
 
 .stat-value.large-value {
   font-size: clamp(2rem, 4vw, 3rem);
   margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #dash-revenue, #dash-burned {
   text-shadow: 0 0 25px rgba(255, 191, 0, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .skeleton-text {
@@ -1487,7 +1521,8 @@ section {
 .dash-chart-card,
 .dashboard-table-card {
   width: 100%;
-  margin: 0 0 40px 0;
+  max-width: var(--container-max);
+  margin: 0 auto 40px;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 15, 20, 0.6);

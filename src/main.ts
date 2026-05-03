@@ -451,15 +451,6 @@ function initCharts() {
   }
 }
 
-function showDashboardToast() {
-  const toast = $('dashboard-toast')
-  if (toast) {
-    toast.classList.add('show')
-    setTimeout(() => {
-      toast.classList.remove('show')
-    }, 3000)
-  }
-}
 
 function animateCounterFromTo(el: HTMLElement, start: number, target: number, prefix = '', suffix = '', decimals = 0) {
   const duration = 1500
@@ -503,13 +494,14 @@ function renderDashboard(data: BotStats | null) {
     if (revEl) revEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
     if (burnEl) burnEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
     if (burnUsdEl) burnUsdEl.textContent = '--'
-    if (updatedEl) updatedEl.textContent = 'Error fetching (Rate Limit)'
-    if (liveDot) liveDot.style.backgroundColor = '#ef4444'
+    if (liveDot) liveDot.style.backgroundColor = '#ef4444' // Red for error
+    if (updatedEl) updatedEl.textContent = 'Connection Error'
     if (burnGlow) burnGlow.classList.remove('active')
     return
   }
 
-  if (liveDot) liveDot.style.backgroundColor = '#22c55e'
+  if (liveDot) liveDot.style.backgroundColor = '#22c55e' // Green for active
+  if (updatedEl) updatedEl.textContent = 'Live Data'
 
   // Real Data
   if (revEl) {
@@ -535,20 +527,12 @@ function renderDashboard(data: BotStats | null) {
     dashLastSolPrice = solPrice
   }
 
-
-
-  if (updatedEl) {
-    updatedEl.textContent = 'Live Data · Updated just now'
-  }
-
   dashLastRevenueSOL = data.total_revenue_sol
   dashLastRevenueUSD = data.total_revenue_usd
   dashLastBurned = data.total_jac_burned_ui
 }
 
 async function loadDashboard() {
-  const updatedEl = $('dash-last-updated')
-  if (updatedEl) updatedEl.textContent = 'Updating...'
   
   // Check session cache first to prevent excessive API calls during development (HMR reloads)
   const cacheKey = 'msk_dashboard_cache'
@@ -561,7 +545,6 @@ async function loadDashboard() {
       if (now - timestamp < 180_000) {
         lastDashboardData = data
         renderDashboard(data)
-        if (updatedEl) updatedEl.textContent = 'Live Data · Cached'
         return
       }
     } catch (e) {
@@ -582,7 +565,6 @@ async function loadDashboard() {
       
       lastDashboardData = data
       renderDashboard(data)
-      showDashboardToast()
     } else {
       lastDashboardData = null
       renderDashboard(null)
@@ -867,10 +849,15 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
   a.addEventListener('click', (e) => {
     const href = (a as HTMLAnchorElement).getAttribute('href')
     if (!href || href === '#') return
-    const target = document.querySelector(href)
+    const target = document.querySelector(href) as HTMLElement | null
     if (target) {
       e.preventDefault()
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Measure the live navbar height so the section title clears the bar cleanly
+      const navEl = document.getElementById('navbar')
+      const navH = navEl ? navEl.offsetHeight : 60
+      const gap = 16 // extra breathing room below the nav
+      const targetTop = target.getBoundingClientRect().top + window.scrollY - navH - gap
+      window.scrollTo({ top: targetTop, behavior: 'smooth' })
     }
   })
 })
