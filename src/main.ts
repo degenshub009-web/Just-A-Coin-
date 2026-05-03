@@ -57,7 +57,9 @@ function initParticles() {
   let particles: Particle[] = []
   let mouseX = 0
   let mouseY = 0
-  let animId: number
+
+  // Detect touch to reduce load and skip mousemove parallax
+  const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0
 
   function resize() {
     if (!canvas) return
@@ -69,22 +71,27 @@ function initParticles() {
 
   const heroContent = document.querySelector('.hero-content') as HTMLElement | null
 
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX
-    mouseY = e.clientY
+  // Only run mouse parallax on non-touch devices
+  if (!isTouchDevice) {
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX
+      mouseY = e.clientY
 
-    if (heroContent) {
-      const centerX = window.innerWidth / 2
-      const centerY = window.innerHeight / 2
-      const deltaX = (e.clientX - centerX) / centerX
-      const deltaY = (e.clientY - centerY) / centerY
+      if (heroContent) {
+        const centerX = window.innerWidth / 2
+        const centerY = window.innerHeight / 2
+        const deltaX = (e.clientX - centerX) / centerX
+        const deltaY = (e.clientY - centerY) / centerY
+        heroContent.style.transform = `translate(${deltaX * -15}px, ${deltaY * -15}px)`
+      }
+    })
+  }
 
-      heroContent.style.transform = `translate(${deltaX * -15}px, ${deltaY * -15}px)`
-    }
-  })
+  // Aggressively cap particles on touch devices
+  const count = isTouchDevice
+    ? Math.min(20, Math.floor(window.innerWidth / 20))
+    : Math.min(80, Math.floor(window.innerWidth / 15))
 
-  // Create particles
-  const count = Math.min(80, Math.floor(window.innerWidth / 15))
   for (let i = 0; i < count; i++) {
     particles.push({
       x: Math.random() * window.innerWidth,
@@ -101,12 +108,16 @@ function initParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     particles.forEach((p) => {
-      // Subtle mouse parallax
-      const dx = (mouseX - canvas!.width / 2) * 0.0002
-      const dy = (mouseY - canvas!.height / 2) * 0.0002
-
-      p.x += p.speedX + dx
-      p.y += p.speedY + dy
+      // Subtle mouse parallax (only non-touch)
+      if (!isTouchDevice) {
+        const dx = (mouseX - canvas!.width / 2) * 0.0002
+        const dy = (mouseY - canvas!.height / 2) * 0.0002
+        p.x += p.speedX + dx
+        p.y += p.speedY + dy
+      } else {
+        p.x += p.speedX
+        p.y += p.speedY
+      }
 
       // Wrap
       if (p.y < -10) {
@@ -122,7 +133,7 @@ function initParticles() {
       ctx!.fill()
     })
 
-    animId = requestAnimationFrame(draw)
+    requestAnimationFrame(draw)
   }
   draw()
 }
@@ -392,9 +403,11 @@ function initCharts() {
   }
 
   // Main Revenue Chart
+  let revenueChartInstance: InstanceType<typeof Chart> | null = null
   const revenueChart = $('revenueChart') as HTMLCanvasElement
   if (revenueChart) {
-    new Chart(revenueChart, {
+    const isMobile = window.innerWidth <= 480
+    revenueChartInstance = new Chart(revenueChart, {
       type: 'line',
       data: {
         labels: ['May 17', 'May 18', 'May 19', 'May 20', 'May 21', 'May 22', 'May 23'],
@@ -411,11 +424,30 @@ function initCharts() {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { grid: { display: false } },
-          y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { dash: [5, 5] } }
+          x: {
+            grid: { display: false },
+            ticks: {
+              maxTicksLimit: isMobile ? 4 : 7,
+              font: { size: isMobile ? 10 : 12 }
+            }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            border: { dash: [5, 5] },
+            ticks: { font: { size: isMobile ? 10 : 12 } }
+          }
         }
       }
-    });
+    })
+
+    // Re-render chart on orientation change / resize (debounced)
+    let resizeTimeout: ReturnType<typeof setTimeout>
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        revenueChartInstance?.resize()
+      }, 150)
+    }, { passive: true })
   }
 }
 
@@ -582,6 +614,51 @@ if (revToggleBtn) {
     }
   })
 }
+
+/* ============================================
+   MOBILE NAVIGATION — Hamburger Menu
+   ============================================ */
+function initMobileMenu() {
+  const hamburger = document.getElementById('nav-hamburger')
+  const mobileMenu = document.getElementById('nav-mobile-menu')
+  if (!hamburger || !mobileMenu) return
+
+  function openMenu() {
+    mobileMenu.classList.add('open')
+    hamburger!.classList.add('open')
+    hamburger!.setAttribute('aria-expanded', 'true')
+    mobileMenu.setAttribute('aria-hidden', 'false')
+    document.body.style.overflow = 'hidden'
+  }
+
+  function closeMenu() {
+    mobileMenu.classList.remove('open')
+    hamburger!.classList.remove('open')
+    hamburger!.setAttribute('aria-expanded', 'false')
+    mobileMenu.setAttribute('aria-hidden', 'true')
+    document.body.style.overflow = ''
+  }
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.contains('open')
+    isOpen ? closeMenu() : openMenu()
+  })
+
+  // Close on any link/button tap
+  mobileMenu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu)
+  })
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+      closeMenu()
+      hamburger!.focus()
+    }
+  })
+}
+
+initMobileMenu()
 
 // Refresh every 180s
 setInterval(loadDashboard, 180_000)

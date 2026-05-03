@@ -122,6 +122,23 @@
         </ul>
         <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
             target="_blank" class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- MOBILE NAVIGATION OVERLAY -->
+    <nav class="nav-mobile-menu" id="nav-mobile-menu" aria-hidden="true" aria-label="Mobile navigation">
+        <a href="#stats-bar">Stats</a>
+        <a href="#chart-section">Chart</a>
+        <a href="#dashboard-section">Dashboard</a>
+        <a href="#leaderboard-section">Leaderboard</a>
+        <a href="#roadmap-section">Roadmap</a>
+        <a href="#community-wallet">Wallet</a>
+        <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
+            target="_blank" class="btn btn-primary nav-mobile-cta btn-pulse">BUY $JAC</a>
     </nav>
 
     <!-- MAIN CONTENT -->
@@ -300,11 +317,46 @@
                         </thead>
                         <tbody id="dash-tx-table">
                             <!-- Mock Data -->
-                            <tr><td>2m ago</td><td><span class="type-buyback">🛒 Buyback</span></td><td>152.35 SOL</td><td>107,231,652</td><td>–</td><td><a href="#" target="_blank">7xGf...kL3a</a></td></tr>
-                            <tr><td>4m ago</td><td><span class="type-burn">🔥 Burn</span></td><td>–</td><td>–</td><td>1,250,764</td><td><a href="#" target="_blank">9mNx...pQ2s</a></td></tr>
-                            <tr><td>10m ago</td><td><span class="type-buyback">🛒 Buyback</span></td><td>101.42 SOL</td><td>71,298,541</td><td>–</td><td><a href="#" target="_blank">3LkP...z9Tu</a></td></tr>
-                            <tr><td>12m ago</td><td><span class="type-burn">🔥 Burn</span></td><td>–</td><td>–</td><td>832,014</td><td><a href="#" target="_blank">8QaB...mZ1x</a></td></tr>
-                            <tr><td>15m ago</td><td><span class="type-buyback">🛒 Buyback</span></td><td>85.90 SOL</td><td>60,431,223</td><td>–</td><td><a href="#" target="_blank">Df7s...aP8w</a></td></tr>
+                            <tr>
+                                <td data-label="Time">2m ago</td>
+                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
+                                <td data-label="Amount">152.35 SOL</td>
+                                <td data-label="$JAC Bought">107,231,652</td>
+                                <td data-label="$JAC Burned">–</td>
+                                <td data-label="TX Hash"><a href="#" target="_blank">7xGf...kL3a</a></td>
+                            </tr>
+                            <tr>
+                                <td data-label="Time">4m ago</td>
+                                <td data-label="Type"><span class="type-burn">🔥 Burn</span></td>
+                                <td data-label="Amount">–</td>
+                                <td data-label="$JAC Bought">–</td>
+                                <td data-label="$JAC Burned">1,250,764</td>
+                                <td data-label="TX Hash"><a href="#" target="_blank">9mNx...pQ2s</a></td>
+                            </tr>
+                            <tr>
+                                <td data-label="Time">10m ago</td>
+                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
+                                <td data-label="Amount">101.42 SOL</td>
+                                <td data-label="$JAC Bought">71,298,541</td>
+                                <td data-label="$JAC Burned">–</td>
+                                <td data-label="TX Hash"><a href="#" target="_blank">3LkP...z9Tu</a></td>
+                            </tr>
+                            <tr>
+                                <td data-label="Time">12m ago</td>
+                                <td data-label="Type"><span class="type-burn">🔥 Burn</span></td>
+                                <td data-label="Amount">–</td>
+                                <td data-label="$JAC Bought">–</td>
+                                <td data-label="$JAC Burned">832,014</td>
+                                <td data-label="TX Hash"><a href="#" target="_blank">8QaB...mZ1x</a></td>
+                            </tr>
+                            <tr>
+                                <td data-label="Time">15m ago</td>
+                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
+                                <td data-label="Amount">85.90 SOL</td>
+                                <td data-label="$JAC Bought">60,431,223</td>
+                                <td data-label="$JAC Burned">–</td>
+                                <td data-label="TX Hash"><a href="#" target="_blank">Df7s...aP8w</a></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
