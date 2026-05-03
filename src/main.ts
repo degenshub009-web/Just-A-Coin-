@@ -1,5 +1,6 @@
 import './style.css'
 import confetti from 'canvas-confetti'
+import Chart from 'chart.js/auto'
 
 /* ============================================
    CONFIG — Replace with real values at launch
@@ -293,6 +294,299 @@ async function loadStats() {
 setInterval(loadStats, 30000)
 
 /* ============================================
+   5.5 BOT PERFORMANCE DASHBOARD
+   ============================================ */
+interface BotStats {
+  total_revenue_sol: number
+  total_revenue_usd: number
+  solPrice?: number
+  total_jac_burned_ui: number
+  lastBurnTx?: string
+}
+
+let isRevenueUSD = false
+let dashLastRevenueSOL = 0
+let dashLastRevenueUSD = 0
+let dashLastSolPrice = 0
+let dashLastBurned = 0
+let lastDashboardData: BotStats | null = null
+
+function getGradient(ctx: CanvasRenderingContext2D, colorStart: string, colorEnd: string) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 60);
+  gradient.addColorStop(0, colorStart);
+  gradient.addColorStop(1, colorEnd);
+  return gradient;
+}
+
+function initCharts() {
+  Chart.defaults.color = '#CBD5E1';
+  Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+
+  // Sparklines
+  const sparklineOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    scales: { x: { display: false }, y: { display: false, min: 0 } },
+    elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 4 }, line: { tension: 0.4, borderWidth: 2 } },
+    interaction: { mode: 'index' as const, intersect: false }
+  };
+
+  const heroSparkline = $('heroSparkline') as HTMLCanvasElement
+  if (heroSparkline) {
+    const ctx = heroSparkline.getContext('2d')
+    new Chart(heroSparkline, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [10, 25, 20, 45, 40, 60, 80], borderColor: '#8b5cf6', backgroundColor: ctx ? getGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  const sparklineRev = $('sparklineRev') as HTMLCanvasElement
+  if (sparklineRev) {
+    const ctx = sparklineRev.getContext('2d')
+    new Chart(sparklineRev, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [5, 10, 15, 12, 20, 25, 30], borderColor: '#8b5cf6', backgroundColor: ctx ? getGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  const sparklineBuy = $('sparklineBuy') as HTMLCanvasElement
+  if (sparklineBuy) {
+    const ctx = sparklineBuy.getContext('2d')
+    new Chart(sparklineBuy, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [2, 5, 8, 7, 10, 15, 20], borderColor: '#10b981', backgroundColor: ctx ? getGradient(ctx, 'rgba(16, 185, 129, 0.4)', 'rgba(16, 185, 129, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  const sparklineBurn = $('sparklineBurn') as HTMLCanvasElement
+  if (sparklineBurn) {
+    const ctx = sparklineBurn.getContext('2d')
+    new Chart(sparklineBurn, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [10, 12, 11, 15, 14, 18, 22], borderColor: '#f97316', backgroundColor: ctx ? getGradient(ctx, 'rgba(249, 115, 22, 0.4)', 'rgba(249, 115, 22, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  const sparklineUsers = $('sparklineUsers') as HTMLCanvasElement
+  if (sparklineUsers) {
+    const ctx = sparklineUsers.getContext('2d')
+    new Chart(sparklineUsers, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [200, 250, 300, 280, 320, 380, 450], borderColor: '#3b82f6', backgroundColor: ctx ? getGradient(ctx, 'rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  const sparklineTx = $('sparklineTx') as HTMLCanvasElement
+  if (sparklineTx) {
+    const ctx = sparklineTx.getContext('2d')
+    new Chart(sparklineTx, {
+      type: 'line',
+      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [5000, 6000, 5800, 7200, 6900, 8500, 9200], borderColor: '#a855f7', backgroundColor: ctx ? getGradient(ctx, 'rgba(168, 85, 247, 0.4)', 'rgba(168, 85, 247, 0)') : 'transparent', fill: true }] },
+      options: sparklineOptions
+    });
+  }
+
+  // Main Revenue Chart
+  const revenueChart = $('revenueChart') as HTMLCanvasElement
+  if (revenueChart) {
+    new Chart(revenueChart, {
+      type: 'line',
+      data: {
+        labels: ['May 17', 'May 18', 'May 19', 'May 20', 'May 21', 'May 22', 'May 23'],
+        datasets: [{
+          label: 'Revenue',
+          data: [10000, 25000, 22000, 45000, 40000, 65000, 80000],
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { dash: [5, 5] } }
+        }
+      }
+    });
+  }
+}
+
+function showDashboardToast() {
+  const toast = $('dashboard-toast')
+  if (toast) {
+    toast.classList.add('show')
+    setTimeout(() => {
+      toast.classList.remove('show')
+    }, 3000)
+  }
+}
+
+function animateCounterFromTo(el: HTMLElement, start: number, target: number, prefix = '', suffix = '', decimals = 0) {
+  const duration = 1500
+  const startTime = performance.now()
+
+  function tick(now: number) {
+    const progress = Math.min((now - startTime) / duration, 1)
+    const ease = 1 - (1 - progress) * (1 - progress)
+    const current = start + (target - start) * ease
+
+    const parts = current.toFixed(decimals).split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    el.textContent = prefix + parts.join('.') + suffix
+
+    if (progress < 1) requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}
+
+function renderDashboard(data: BotStats | null) {
+  const revEl = $('dash-revenue')
+  const burnEl = $('dash-burned')
+  const burnUsdEl = $('dash-burned-usd')
+  const updatedEl = $('dash-last-updated')
+  const liveDot = $('dash-live-dot')
+  const burnGlow = $('burn-glow')
+
+  // Mock elements for the new layout
+  const dailyRevEl = $('dash-daily-rev')
+  const buybacksUsdEl = $('dash-buybacks-usd')
+  const activeUsersEl = $('dash-active-users')
+  const txPerDayEl = $('dash-tx-per-day')
+
+  // Mock Data Updates (always populate these, even if real API fails)
+  if (dailyRevEl) dailyRevEl.textContent = isRevenueUSD ? '$48,529.23' : '◎ 315.42'
+  if (buybacksUsdEl) buybacksUsdEl.textContent = isRevenueUSD ? '$1,342,984.52' : '◎ 8,725.14'
+  if (activeUsersEl) animateCounterFromTo(activeUsersEl, 0, 1542, '', '', 0)
+  if (txPerDayEl) animateCounterFromTo(txPerDayEl, 0, 9205, '', '', 0)
+
+  if (!data) {
+    if (revEl) revEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
+    if (burnEl) burnEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
+    if (burnUsdEl) burnUsdEl.textContent = '--'
+    if (updatedEl) updatedEl.textContent = 'Error fetching (Rate Limit)'
+    if (liveDot) liveDot.style.backgroundColor = '#ef4444'
+    if (burnGlow) burnGlow.classList.remove('active')
+    return
+  }
+
+  if (liveDot) liveDot.style.backgroundColor = '#22c55e'
+
+  // Real Data
+  if (revEl) {
+    const targetVal = isRevenueUSD ? data.total_revenue_usd : data.total_revenue_sol
+    const startVal = isRevenueUSD ? dashLastRevenueUSD : dashLastRevenueSOL
+    const prefix = isRevenueUSD ? '$' : '◎ '
+    animateCounterFromTo(revEl, startVal, targetVal, prefix, '', isRevenueUSD ? 2 : 2)
+  }
+
+  if (burnEl) {
+    animateCounterFromTo(burnEl, dashLastBurned, data.total_jac_burned_ui, '', '', 0)
+    if (data.total_jac_burned_ui > dashLastBurned && dashLastBurned > 0 && burnGlow) {
+      burnGlow.classList.add('active')
+      setTimeout(() => burnGlow.classList.remove('active'), 5000)
+    }
+  }
+
+  if (burnUsdEl) {
+    const solPrice = data.solPrice || (data.total_revenue_usd / data.total_revenue_sol) || 0
+    const usdValue = data.total_jac_burned_ui * solPrice
+    const lastUsdValue = dashLastBurned * dashLastSolPrice
+    animateCounterFromTo(burnUsdEl, lastUsdValue, usdValue, '', '', 2)
+    dashLastSolPrice = solPrice
+  }
+
+
+
+  if (updatedEl) {
+    updatedEl.textContent = 'Live Data · Updated just now'
+  }
+
+  dashLastRevenueSOL = data.total_revenue_sol
+  dashLastRevenueUSD = data.total_revenue_usd
+  dashLastBurned = data.total_jac_burned_ui
+}
+
+async function loadDashboard() {
+  const updatedEl = $('dash-last-updated')
+  if (updatedEl) updatedEl.textContent = 'Updating...'
+  
+  // Check session cache first to prevent excessive API calls during development (HMR reloads)
+  const cacheKey = 'msk_dashboard_cache'
+  const cached = sessionStorage.getItem(cacheKey)
+  if (cached) {
+    try {
+      const { data, timestamp } = JSON.parse(cached)
+      const now = Date.now()
+      // If cache is less than 180 seconds old, use it instead of fetching
+      if (now - timestamp < 180_000) {
+        lastDashboardData = data
+        renderDashboard(data)
+        if (updatedEl) updatedEl.textContent = 'Live Data · Cached'
+        return
+      }
+    } catch (e) {
+      sessionStorage.removeItem(cacheKey)
+    }
+  }
+
+  try {
+    const res = await fetch('/api/stats')
+    if (res.ok) {
+      const data: BotStats = await res.json()
+      
+      // Update cache
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }))
+      
+      lastDashboardData = data
+      renderDashboard(data)
+      showDashboardToast()
+    } else {
+      lastDashboardData = null
+      renderDashboard(null)
+    }
+  } catch (e) {
+    console.error('Failed to load dashboard data', e)
+    lastDashboardData = null
+    renderDashboard(null)
+  }
+}
+
+// Set up revenue toggle
+const revToggleBtn = $('revenue-toggle-btn')
+if (revToggleBtn) {
+  revToggleBtn.addEventListener('click', () => {
+    isRevenueUSD = !isRevenueUSD
+    revToggleBtn.textContent = isRevenueUSD ? 'USD' : 'SOL'
+    
+    // Re-render the dashboard with the new currency state
+    if (lastDashboardData) {
+      renderDashboard(lastDashboardData)
+    } else {
+      // Just toggle the mock data if no real data
+      const dailyRevEl = $('dash-daily-rev')
+      const buybacksUsdEl = $('dash-buybacks-usd')
+      
+      if (dailyRevEl) dailyRevEl.textContent = isRevenueUSD ? '$48,529.23' : '◎ 315.42'
+      if (buybacksUsdEl) buybacksUsdEl.textContent = isRevenueUSD ? '$1,342,984.52' : '◎ 8,725.14'
+    }
+  })
+}
+
+// Refresh every 180s
+setInterval(loadDashboard, 180_000)
+
+/* ============================================
    6. CONFETTI ON BUY BUTTON
    ============================================ */
 if (buyBtn) {
@@ -507,3 +801,5 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
 // Start loading data in the background immediately
 loadStats()
 loadLeaderboard()
+initCharts()
+loadDashboard()

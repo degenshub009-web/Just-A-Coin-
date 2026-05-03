@@ -1,0 +1,30 @@
+# $JAC Bot Performance Dashboard Implementation Context
+
+## Status
+Finalized implementation plan, ready for development.
+
+## Objectives
+- Integrate a live bot performance dashboard above the Meme Leaderboard.
+- Securely fetch data from MSK Technology API (`https://api.msktechnology.com.au/stats`).
+
+## Architecture & Security
+- **Approach**: Vite server proxy (Dev) + Vercel Serverless Function (Prod).
+- **Authentication**: `x-api-key` header (stored in `.env`, injected server-side).
+- **Hosting**: Vercel.
+
+## UI/UX Design
+- **Visual Theme**: Gold + dark glassmorphism (consistent with current design).
+- **Metrics**: 
+  - Total Revenue (includes a SOL/USD display toggle).
+  - SOL Price.
+  - $JAC Burned (includes a custom "fire glow" effect).
+- **Features**:
+  - Live data indicator (pulsing dot).
+  - Smooth animated number transitions on data refresh.
+  - Toast notifications ("Data updated ✓") on successful refresh.
+  - Last Burn TX link to Solscan.
+
+## Technical Details
+- **Refresh Rate**: 120 seconds (respecting 1-min API rate limits).
+- **No Mock Data**: Dashes will show on error.
+- **Reference Document**: See `implementation_dashboard.md` in artifacts for the full changeset and logic.
