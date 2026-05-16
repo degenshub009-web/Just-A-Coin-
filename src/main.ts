@@ -14,7 +14,7 @@ const CONFIG = {
   COMMUNITY_WALLET_FULL: '69jzVYz3bykcB2PQnEtZSUuxx6jtuuNJiuogKQ2H7zug',
   X_BEARER_TOKEN: import.meta.env.VITE_X_BEARER_TOKEN || '',
   // Placeholder social proof numbers
-  COMMUNITY_COUNT: 503,
+  COMMUNITY_COUNT: 677,
 }
 
 /* ============================================
@@ -307,20 +307,236 @@ setInterval(loadStats, 30000)
 /* ============================================
    5.5 BOT PERFORMANCE DASHBOARD
    ============================================ */
+interface DailyStat {
+  date: string
+  revenue_sol: number
+  revenue_usd: number
+  revenue_events: number
+  burn_sol: number
+  burn_usd: number
+  burn_events: number
+  jac_burned_ui: number
+  users?: number
+}
+
 interface BotStats {
   total_revenue_sol: number
   total_revenue_usd: number
-  solPrice?: number
+  total_revenue_events: number
+  last_revenue_tx: string
+  total_burn_sol: number
+  total_burn_usd: number
+  total_burn_events: number
+  total_jac_burned_raw: number
   total_jac_burned_ui: number
-  lastBurnTx?: string
+  last_burn_sol: number
+  last_burn_usd: number
+  last_burn_jac_raw: number
+  last_burn_jac_ui: number
+  last_burn_buy_tx: string
+  last_burn_tx: string
+  total_users: number
+  daily: DailyStat[]
+  updated_at: string
 }
+
+const dashCharts: Record<string, InstanceType<typeof Chart>> = {}
 
 let isRevenueUSD = false
 let dashLastRevenueSOL = 0
 let dashLastRevenueUSD = 0
-let dashLastSolPrice = 0
 let dashLastBurned = 0
+let dashLastDailyRev = 0
+let dashLastBuybacks = 0
+let dashLastUsers = 0
 let lastDashboardData: BotStats | null = null
+
+function sortDaily(daily: DailyStat[]): DailyStat[] {
+  return [...daily].sort((a, b) => a.date.localeCompare(b.date))
+}
+
+function latestDaily(data: BotStats): DailyStat | null {
+  if (!data.daily?.length) return null
+  return sortDaily(data.daily).at(-1) ?? null
+}
+
+function dayOverDayPct(daily: DailyStat[], pick: (d: DailyStat) => number): number | null {
+  const sorted = sortDaily(daily)
+  if (sorted.length < 2) return null
+  const prev = pick(sorted[sorted.length - 2])
+  const curr = pick(sorted[sorted.length - 1])
+  if (prev === 0) return null
+  return ((curr - prev) / prev) * 100
+}
+
+function formatNumber(n: number, decimals = 0): string {
+  const parts = n.toFixed(decimals).split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parts.join('.')
+}
+
+function formatUpdatedAt(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return 'Live Data'
+  return `Updated ${date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+}
+
+function formatRelativeTime(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return 'Recent'
+  const diffSec = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000))
+  if (diffSec < 60) return `${diffSec}s ago`
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`
+  return `${Math.floor(diffSec / 86400)}d ago`
+}
+
+function truncateTx(hash: string): string {
+  if (!hash || hash.length < 12) return hash || '—'
+  return `${hash.slice(0, 4)}...${hash.slice(-4)}`
+}
+
+function solscanTxUrl(hash: string): string {
+  return `https://solscan.io/tx/${hash}`
+}
+
+function setStatChange(id: string, pct: number | null) {
+  const el = $(id)
+  if (!el) return
+  el.classList.remove('positive', 'negative')
+  if (pct === null) {
+    el.textContent = ''
+    return
+  }
+  const sign = pct >= 0 ? '+' : ''
+  el.textContent = `${sign}${pct.toFixed(1)}% vs yesterday`
+  el.classList.add(pct >= 0 ? 'positive' : 'negative')
+}
+
+function updateChartData(key: string, labels: string[], values: number[]) {
+  const chart = dashCharts[key]
+  if (!chart) return
+  chart.data.labels = labels.length ? labels : ['—']
+  chart.data.datasets[0].data = values.length ? values : [0]
+  chart.update('none')
+}
+
+function updateChartsFromDaily(data: BotStats, days = 7) {
+  const sorted = sortDaily(data.daily)
+  const sliced = days === -1 ? sorted : sorted.slice(-days)
+
+  const labels = sliced.map((d) => {
+    const [, month, day] = d.date.split('-')
+    return `${month}/${day}`
+  })
+  const isUSD = isRevenueUSD
+  const revenue = sliced.map((d) => (isUSD ? d.revenue_usd : d.revenue_sol))
+  const burn = sliced.map((d) => (isUSD ? d.burn_usd : d.burn_sol))
+  const jacBurned = sliced.map((d) => d.jac_burned_ui)
+  const txCounts = sliced.map((d) => d.revenue_events + d.burn_events)
+  const usersLine = sliced.map((d) => d.users ?? data.total_users ?? 0)
+
+  updateChartData('hero', labels, revenue)
+  updateChartData('rev', labels, revenue)
+  updateChartData('buy', labels, burn)
+  updateChartData('burn', labels, jacBurned)
+  updateChartData('users', labels, usersLine)
+
+  // Main Revenue Chart - update with both Revenue and Buybacks
+  const mainChart = dashCharts.revenue
+  if (mainChart) {
+    mainChart.data.labels = labels
+    mainChart.data.datasets[0].label = isUSD ? 'Revenue ($)' : 'Revenue (◎)'
+    mainChart.data.datasets[0].data = revenue
+    
+    if (mainChart.data.datasets.length === 1) {
+      mainChart.data.datasets.push({
+        label: isUSD ? 'Buybacks ($)' : 'Buybacks (◎)',
+        data: burn,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+        fill: true,
+        tension: 0.4,
+      })
+    } else {
+      mainChart.data.datasets[1].label = isUSD ? 'Buybacks ($)' : 'Buybacks (◎)'
+      mainChart.data.datasets[1].data = burn
+    }
+    mainChart.update('none')
+  }
+}
+
+function renderTxTable(data: BotStats) {
+  const tbody = $('dash-tx-table')
+  if (!tbody) return
+
+  const timeLabel = formatRelativeTime(data.updated_at)
+  const rows: Array<{
+    type: 'buyback' | 'burn' | 'revenue'
+    sol: number | null
+    jacBought: number | null
+    jacBurned: number | null
+    tx: string
+  }> = []
+
+  if (data.last_burn_buy_tx) {
+    rows.push({
+      type: 'buyback',
+      sol: data.last_burn_sol,
+      jacBought: data.last_burn_jac_ui,
+      jacBurned: null,
+      tx: data.last_burn_buy_tx,
+    })
+  }
+
+  if (data.last_burn_tx && data.last_burn_tx !== data.last_burn_buy_tx) {
+    rows.push({
+      type: 'burn',
+      sol: null,
+      jacBought: null,
+      jacBurned: data.last_burn_jac_ui,
+      tx: data.last_burn_tx,
+    })
+  }
+
+  if (data.last_revenue_tx) {
+    const latest = latestDaily(data)
+    rows.push({
+      type: 'revenue',
+      sol: latest ? latest.revenue_sol : null,
+      jacBought: null,
+      jacBurned: null,
+      tx: data.last_revenue_tx,
+    })
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:24px;">No transactions yet</td></tr>'
+    return
+  }
+
+  const typeLabels = {
+    buyback: '<span class="type-buyback">🛒 Buyback</span>',
+    burn: '<span class="type-burn">🔥 Burn</span>',
+    revenue: '<span class="type-revenue">💰 Revenue</span>',
+  }
+
+  tbody.innerHTML = rows
+    .map((row) => {
+      const solCell = row.sol != null && row.sol > 0 ? `${formatNumber(row.sol, 4)} SOL` : '–'
+      const boughtCell = row.jacBought != null ? formatNumber(row.jacBought, 0) : '–'
+      const burnedCell = row.jacBurned != null ? formatNumber(row.jacBurned, 0) : '–'
+      return `<tr>
+        <td data-label="Time">${timeLabel}</td>
+        <td data-label="Type">${typeLabels[row.type]}</td>
+        <td data-label="Amount">${solCell}</td>
+        <td data-label="$JAC Bought">${boughtCell}</td>
+        <td data-label="$JAC Burned">${burnedCell}</td>
+        <td data-label="TX Hash"><a href="${solscanTxUrl(row.tx)}" target="_blank" rel="noopener noreferrer">${truncateTx(row.tx)}</a></td>
+      </tr>`
+    })
+    .join('')
+}
 
 function getGradient(ctx: CanvasRenderingContext2D, colorStart: string, colorEnd: string) {
   const gradient = ctx.createLinearGradient(0, 0, 0, 60);
@@ -329,123 +545,116 @@ function getGradient(ctx: CanvasRenderingContext2D, colorStart: string, colorEnd
   return gradient;
 }
 
+function createSparkline(canvasId: string, chartKey: string, borderColor: string, rgba: string) {
+  const canvas = $(canvasId) as HTMLCanvasElement | null
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  dashCharts[chartKey] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: [''],
+      datasets: [{
+        data: [0],
+        borderColor,
+        backgroundColor: ctx ? getGradient(ctx, rgba, 'transparent') : 'transparent',
+        fill: true,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false, min: 0 } },
+      elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 4 }, line: { tension: 0.4, borderWidth: 2 } },
+      interaction: { mode: 'index' as const, intersect: false },
+    },
+  })
+}
+
 function initCharts() {
-  Chart.defaults.color = '#CBD5E1';
-  Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+  Chart.defaults.color = '#CBD5E1'
+  Chart.defaults.font.family = "'Space Grotesk', sans-serif"
 
-  // Sparklines
-  const sparklineOptions = {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: { x: { display: false }, y: { display: false, min: 0 } },
-    elements: { point: { radius: 0, hitRadius: 10, hoverRadius: 4 }, line: { tension: 0.4, borderWidth: 2 } },
-    interaction: { mode: 'index' as const, intersect: false }
-  };
+  createSparkline('heroSparkline', 'hero', '#8b5cf6', 'rgba(139, 92, 246, 0.4)')
+  createSparkline('sparklineRev', 'rev', '#8b5cf6', 'rgba(139, 92, 246, 0.4)')
+  createSparkline('sparklineBuy', 'buy', '#10b981', 'rgba(16, 185, 129, 0.4)')
+  createSparkline('sparklineBurn', 'burn', '#f97316', 'rgba(249, 115, 22, 0.4)')
+  createSparkline('sparklineUsers', 'users', '#3b82f6', 'rgba(59, 130, 246, 0.4)')
 
-  const heroSparkline = $('heroSparkline') as HTMLCanvasElement
-  if (heroSparkline) {
-    const ctx = heroSparkline.getContext('2d')
-    new Chart(heroSparkline, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [10, 25, 20, 45, 40, 60, 80], borderColor: '#8b5cf6', backgroundColor: ctx ? getGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  const sparklineRev = $('sparklineRev') as HTMLCanvasElement
-  if (sparklineRev) {
-    const ctx = sparklineRev.getContext('2d')
-    new Chart(sparklineRev, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [5, 10, 15, 12, 20, 25, 30], borderColor: '#8b5cf6', backgroundColor: ctx ? getGradient(ctx, 'rgba(139, 92, 246, 0.4)', 'rgba(139, 92, 246, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  const sparklineBuy = $('sparklineBuy') as HTMLCanvasElement
-  if (sparklineBuy) {
-    const ctx = sparklineBuy.getContext('2d')
-    new Chart(sparklineBuy, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [2, 5, 8, 7, 10, 15, 20], borderColor: '#10b981', backgroundColor: ctx ? getGradient(ctx, 'rgba(16, 185, 129, 0.4)', 'rgba(16, 185, 129, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  const sparklineBurn = $('sparklineBurn') as HTMLCanvasElement
-  if (sparklineBurn) {
-    const ctx = sparklineBurn.getContext('2d')
-    new Chart(sparklineBurn, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [10, 12, 11, 15, 14, 18, 22], borderColor: '#f97316', backgroundColor: ctx ? getGradient(ctx, 'rgba(249, 115, 22, 0.4)', 'rgba(249, 115, 22, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  const sparklineUsers = $('sparklineUsers') as HTMLCanvasElement
-  if (sparklineUsers) {
-    const ctx = sparklineUsers.getContext('2d')
-    new Chart(sparklineUsers, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [200, 250, 300, 280, 320, 380, 450], borderColor: '#3b82f6', backgroundColor: ctx ? getGradient(ctx, 'rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  const sparklineTx = $('sparklineTx') as HTMLCanvasElement
-  if (sparklineTx) {
-    const ctx = sparklineTx.getContext('2d')
-    new Chart(sparklineTx, {
-      type: 'line',
-      data: { labels: [1,2,3,4,5,6,7], datasets: [{ data: [5000, 6000, 5800, 7200, 6900, 8500, 9200], borderColor: '#a855f7', backgroundColor: ctx ? getGradient(ctx, 'rgba(168, 85, 247, 0.4)', 'rgba(168, 85, 247, 0)') : 'transparent', fill: true }] },
-      options: sparklineOptions
-    });
-  }
-
-  // Main Revenue Chart
-  let revenueChartInstance: InstanceType<typeof Chart> | null = null
-  const revenueChart = $('revenueChart') as HTMLCanvasElement
+  const revenueChart = $('revenueChart') as HTMLCanvasElement | null
   if (revenueChart) {
     const isMobile = window.innerWidth <= 480
-    revenueChartInstance = new Chart(revenueChart, {
+    dashCharts.revenue = new Chart(revenueChart, {
       type: 'line',
       data: {
-        labels: ['May 17', 'May 18', 'May 19', 'May 20', 'May 21', 'May 22', 'May 23'],
-        datasets: [{
-          label: 'Revenue',
-          data: [10000, 25000, 22000, 45000, 40000, 65000, 80000],
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          fill: true,
-          tension: 0.4
-        }]
+        labels: [''],
+        datasets: [
+          {
+            label: 'Revenue',
+            data: [0],
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            fill: true,
+            tension: 0.4,
+          }
+        ],
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { 
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              boxWidth: 12,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: { size: 11 }
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleFont: { size: 13, weight: 'bold' },
+            bodyFont: { size: 12 },
+            padding: 12,
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1
+          }
+        },
         scales: {
           x: {
             grid: { display: false },
             ticks: {
-              maxTicksLimit: isMobile ? 4 : 7,
-              font: { size: isMobile ? 10 : 12 }
-            }
+              maxTicksLimit: isMobile ? 4 : 10,
+              font: { size: isMobile ? 10 : 12 },
+            },
           },
           y: {
             grid: { color: 'rgba(255,255,255,0.05)' },
             border: { dash: [5, 5] },
-            ticks: { font: { size: isMobile ? 10 : 12 } }
-          }
+            ticks: { 
+              font: { size: isMobile ? 10 : 12 },
+              callback: (val) => typeof val === 'number' ? (val >= 1000 ? (val / 1000).toFixed(1) + 'k' : val) : val
+            },
+          },
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
         }
-      }
+      },
     })
 
-    // Re-render chart on orientation change / resize (debounced)
     let resizeTimeout: ReturnType<typeof setTimeout>
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(() => {
-        revenueChartInstance?.resize()
+        dashCharts.revenue?.resize()
       }, 150)
     }, { passive: true })
   }
@@ -470,109 +679,323 @@ function animateCounterFromTo(el: HTMLElement, start: number, target: number, pr
   requestAnimationFrame(tick)
 }
 
+function isValidBotStats(data: unknown): data is BotStats {
+  if (!data || typeof data !== 'object') return false
+  const stats = data as BotStats
+  return (
+    typeof stats.total_revenue_sol === 'number' &&
+    typeof stats.total_revenue_usd === 'number' &&
+    typeof stats.total_jac_burned_ui === 'number' &&
+    Array.isArray(stats.daily)
+  )
+}
+
+/** MSK API refresh frequency - set to 15 minutes. */
+const MSK_API_MIN_INTERVAL_MS = 900_000
+/** Background refresh interval (15 minutes). */
+const MSK_STATS_REFRESH_MS = 900_000
+
+const DASHBOARD_CACHE_KEY = 'msk_dashboard_cache'
+const MSK_RATE_LIMIT_KEY = 'msk_stats_rate_limited_until'
+const MSK_LAST_FETCH_KEY = 'msk_last_stats_fetch'
+
+let dashboardFetchInFlight = false
+let dashboardStatusOverride: string | null = null
+
+function getRateLimitedUntil(): number {
+  const raw = sessionStorage.getItem(MSK_RATE_LIMIT_KEY)
+  return raw ? Number(raw) : 0
+}
+
+function setRateLimitedForOneMinute() {
+  sessionStorage.setItem(MSK_RATE_LIMIT_KEY, String(Date.now() + MSK_API_MIN_INTERVAL_MS))
+}
+
+function getLastFetchAt(): number {
+  const raw = sessionStorage.getItem(MSK_LAST_FETCH_KEY)
+  return raw ? Number(raw) : 0
+}
+
+function recordStatsFetch() {
+  sessionStorage.setItem(MSK_LAST_FETCH_KEY, String(Date.now()))
+}
+
+function msUntilNextFetchAllowed(now: number): number {
+  const waits = [
+    getRateLimitedUntil() - now,
+    getLastFetchAt() + MSK_STATS_REFRESH_MS - now,
+  ]
+  return Math.max(0, ...waits)
+}
+
+function startDashboardTimer() {
+  const updatedEl = $('dash-last-updated')
+  if (!updatedEl) return
+
+  setInterval(() => {
+    // If there is a manual status override (error or cache notice), show that instead
+    if (dashboardStatusOverride) {
+      updatedEl.textContent = dashboardStatusOverride
+      return
+    }
+
+    // If a fetch is happening, don't show the timer
+    if (dashboardFetchInFlight) {
+      updatedEl.textContent = 'Updating now...'
+      return
+    }
+
+    const now = Date.now()
+    const waitMs = msUntilNextFetchAllowed(now)
+    
+    if (waitMs > 0) {
+      const totalSeconds = Math.ceil(waitMs / 1000)
+      const minutes = Math.floor(totalSeconds / 60)
+      const seconds = totalSeconds % 60
+      
+      let timeStr = ''
+      if (minutes > 0) {
+        timeStr += `${minutes}m `
+      }
+      timeStr += `${seconds}s`
+      
+      updatedEl.textContent = `Updating in ${timeStr}`
+    } else {
+      updatedEl.textContent = 'Refreshing data...'
+    }
+  }, 1000)
+}
+
+function readDashboardCache(): { data: BotStats; timestamp: number } | null {
+  const cached = sessionStorage.getItem(DASHBOARD_CACHE_KEY)
+  if (!cached) return null
+  try {
+    const parsed = JSON.parse(cached) as { data: unknown; timestamp: number }
+    if (!isValidBotStats(parsed.data) || typeof parsed.timestamp !== 'number') {
+      sessionStorage.removeItem(DASHBOARD_CACHE_KEY)
+      return null
+    }
+    return { data: parsed.data, timestamp: parsed.timestamp }
+  } catch {
+    sessionStorage.removeItem(DASHBOARD_CACHE_KEY)
+    return null
+  }
+}
+
+function writeDashboardCache(data: BotStats) {
+  sessionStorage.setItem(
+    DASHBOARD_CACHE_KEY,
+    JSON.stringify({ data, timestamp: Date.now() }),
+  )
+}
+
+function clearDashboardMetrics() {
+  const placeholders = [
+    'dash-revenue',
+    'dash-burned',
+    'dash-daily-rev',
+    'dash-buybacks-usd',
+    'dash-active-users',
+  ]
+  placeholders.forEach((id) => {
+    const el = $(id)
+    if (el) el.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">—</span>'
+  })
+  ;['dash-daily-rev-change', 'dash-buybacks-change', 'dash-users-change'].forEach((id) => {
+    setStatChange(id, null)
+  })
+  const tbody = $('dash-tx-table')
+  if (tbody) tbody.innerHTML = ''
+}
+
+function renderDashboardError(message: string) {
+  clearDashboardMetrics()
+  const liveDot = $('dash-live-dot')
+  const updatedEl = $('dash-last-updated')
+  const burnGlow = $('burn-glow')
+  if (liveDot) liveDot.style.backgroundColor = '#ef4444'
+  if (updatedEl) updatedEl.textContent = message
+  dashboardStatusOverride = message
+  if (burnGlow) burnGlow.classList.remove('active')
+  lastDashboardData = null
+}
+
 function renderDashboard(data: BotStats | null) {
   const revEl = $('dash-revenue')
   const burnEl = $('dash-burned')
-  const burnUsdEl = $('dash-burned-usd')
   const updatedEl = $('dash-last-updated')
   const liveDot = $('dash-live-dot')
   const burnGlow = $('burn-glow')
-
-  // Mock elements for the new layout
   const dailyRevEl = $('dash-daily-rev')
-  const buybacksUsdEl = $('dash-buybacks-usd')
+  const buybacksEl = $('dash-buybacks-usd')
   const activeUsersEl = $('dash-active-users')
-  const txPerDayEl = $('dash-tx-per-day')
 
-  // Mock Data Updates (always populate these, even if real API fails)
-  if (dailyRevEl) dailyRevEl.textContent = isRevenueUSD ? '$48,529.23' : '◎ 315.42'
-  if (buybacksUsdEl) buybacksUsdEl.textContent = isRevenueUSD ? '$1,342,984.52' : '◎ 8,725.14'
-  if (activeUsersEl) animateCounterFromTo(activeUsersEl, 0, 1542, '', '', 0)
-  if (txPerDayEl) animateCounterFromTo(txPerDayEl, 0, 9205, '', '', 0)
+  if (!data) return
 
-  if (!data) {
-    if (revEl) revEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
-    if (burnEl) burnEl.innerHTML = '<span style="font-size: 1.5rem; color: var(--text-secondary);">API Rate Limited</span>'
-    if (burnUsdEl) burnUsdEl.textContent = '--'
-    if (liveDot) liveDot.style.backgroundColor = '#ef4444' // Red for error
-    if (updatedEl) updatedEl.textContent = 'Connection Error'
-    if (burnGlow) burnGlow.classList.remove('active')
-    return
-  }
+  if (liveDot) liveDot.style.backgroundColor = '#22c55e'
+  // Timer handles the updatedEl text now
 
-  if (liveDot) liveDot.style.backgroundColor = '#22c55e' // Green for active
-  if (updatedEl) updatedEl.textContent = 'Live Data'
+  const latest = latestDaily(data)
 
-  // Real Data
   if (revEl) {
     const targetVal = isRevenueUSD ? data.total_revenue_usd : data.total_revenue_sol
     const startVal = isRevenueUSD ? dashLastRevenueUSD : dashLastRevenueSOL
     const prefix = isRevenueUSD ? '$' : '◎ '
-    animateCounterFromTo(revEl, startVal, targetVal, prefix, '', isRevenueUSD ? 2 : 2)
+    animateCounterFromTo(revEl, startVal, targetVal, prefix, '', 2)
   }
 
   if (burnEl) {
-    animateCounterFromTo(burnEl, dashLastBurned, data.total_jac_burned_ui, '', '', 0)
+    animateCounterFromTo(burnEl, dashLastBurned, data.total_jac_burned_ui, '', '', 2)
     if (data.total_jac_burned_ui > dashLastBurned && dashLastBurned > 0 && burnGlow) {
       burnGlow.classList.add('active')
       setTimeout(() => burnGlow.classList.remove('active'), 5000)
     }
   }
 
-  if (burnUsdEl) {
-    const solPrice = data.solPrice || (data.total_revenue_usd / data.total_revenue_sol) || 0
-    const usdValue = data.total_jac_burned_ui * solPrice
-    const lastUsdValue = dashLastBurned * dashLastSolPrice
-    animateCounterFromTo(burnUsdEl, lastUsdValue, usdValue, '', '', 2)
-    dashLastSolPrice = solPrice
+  if (latest && dailyRevEl) {
+    const dailyVal = isRevenueUSD ? latest.revenue_usd : latest.revenue_sol
+    animateCounterFromTo(
+      dailyRevEl,
+      dashLastDailyRev,
+      dailyVal,
+      isRevenueUSD ? '$' : '◎ ',
+      '',
+      isRevenueUSD ? 2 : 4,
+    )
+    dashLastDailyRev = dailyVal
+    setStatChange(
+      'dash-daily-rev-change',
+      dayOverDayPct(data.daily, (d) => (isRevenueUSD ? d.revenue_usd : d.revenue_sol)),
+    )
+  } else if (dailyRevEl) {
+    dailyRevEl.textContent = '—'
+    setStatChange('dash-daily-rev-change', null)
   }
+
+  if (buybacksEl) {
+    const dailyVal = latest ? (isRevenueUSD ? latest.burn_usd : latest.burn_sol) : 0
+    animateCounterFromTo(
+      buybacksEl,
+      dashLastBuybacks,
+      dailyVal,
+      isRevenueUSD ? '$' : '◎ ',
+      '',
+      isRevenueUSD ? 2 : 4,
+    )
+    dashLastBuybacks = dailyVal
+    setStatChange(
+      'dash-buybacks-change',
+      dayOverDayPct(data.daily, (d) => (isRevenueUSD ? d.burn_usd : d.burn_sol)),
+    )
+  }
+
+  if (activeUsersEl) {
+    const latestUsers = latest?.users ?? data.total_users ?? 0
+    animateCounterFromTo(activeUsersEl, dashLastUsers, latestUsers, '', '', 0)
+    dashLastUsers = latestUsers
+    setStatChange(
+      'dash-users-change',
+      dayOverDayPct(data.daily, (d) => d.users ?? 0),
+    )
+  }
+
+  // Get current chart range from dropdown
+  const chartDropdown = document.querySelector('.chart-dropdown') as HTMLSelectElement | null
+  let days = 7
+  if (chartDropdown) {
+    const val = chartDropdown.value
+    if (val === '30D') days = 30
+    else if (val === 'ALL') days = -1
+  }
+
+  updateChartsFromDaily(data, days)
+  renderTxTable(data)
 
   dashLastRevenueSOL = data.total_revenue_sol
   dashLastRevenueUSD = data.total_revenue_usd
   dashLastBurned = data.total_jac_burned_ui
+  dashboardStatusOverride = null // Clear override on successful render
+}
+
+function renderDashboardFromCache(data: BotStats, statusMessage?: string) {
+  lastDashboardData = data
+  renderDashboard(data)
+  const liveDot = $('dash-live-dot')
+  if (liveDot) liveDot.style.backgroundColor = '#eab308'
+  if (statusMessage) {
+    dashboardStatusOverride = statusMessage
+  }
 }
 
 async function loadDashboard() {
-  
-  // Check session cache first to prevent excessive API calls during development (HMR reloads)
-  const cacheKey = 'msk_dashboard_cache'
-  const cached = sessionStorage.getItem(cacheKey)
-  if (cached) {
-    try {
-      const { data, timestamp } = JSON.parse(cached)
-      const now = Date.now()
-      // If cache is less than 180 seconds old, use it instead of fetching
-      if (now - timestamp < 180_000) {
-        lastDashboardData = data
-        renderDashboard(data)
-        return
-      }
-    } catch (e) {
-      sessionStorage.removeItem(cacheKey)
-    }
+  if (dashboardFetchInFlight) return
+
+  const cache = readDashboardCache()
+  const now = Date.now()
+  const cacheAge = cache ? now - cache.timestamp : Infinity
+  const cacheIsFresh = cacheAge < MSK_API_MIN_INTERVAL_MS
+
+  // Serve from cache without hitting the network (HMR, tab focus, interval ticks).
+  if (cache && cacheIsFresh) {
+    renderDashboardFromCache(cache.data)
+    return
   }
 
+  const waitMs = msUntilNextFetchAllowed(now)
+  if (waitMs > 0) {
+    if (cache) {
+      renderDashboardFromCache(cache.data)
+    }
+    return
+  }
+
+  dashboardFetchInFlight = true
   try {
     const res = await fetch('/api/stats')
-    if (res.ok) {
-      const data: BotStats = await res.json()
-      
-      // Update cache
-      sessionStorage.setItem(cacheKey, JSON.stringify({
-        data,
-        timestamp: Date.now()
-      }))
-      
-      lastDashboardData = data
-      renderDashboard(data)
+    const payload: unknown = await res.json().catch(() => null)
+
+    if (res.ok && isValidBotStats(payload)) {
+      recordStatsFetch()
+      writeDashboardCache(payload)
+      lastDashboardData = payload
+      renderDashboard(payload)
+      return
+    }
+
+    if (res.status === 429) {
+      setRateLimitedForOneMinute()
+      recordStatsFetch()
+    }
+
+    if (cache) {
+      const status =
+        res.status === 429
+          ? 'Cached data · rate limited (1 req/min)'
+          : `Cached data · API unavailable (${res.status})`
+      renderDashboardFromCache(cache.data, status)
+      return
+    }
+
+    const apiError =
+      payload && typeof payload === 'object' && 'error' in payload
+        ? String((payload as { error: unknown }).error)
+        : null
+    if (res.status === 429) {
+      renderDashboardError(apiError || 'Rate limited — refreshes every minute')
+    } else if (res.status === 500 && apiError?.includes('MSK_API_KEY')) {
+      renderDashboardError('API key missing — add MSK_API_KEY to .env')
     } else {
-      lastDashboardData = null
-      renderDashboard(null)
+      renderDashboardError(apiError || 'Connection Error')
     }
   } catch (e) {
     console.error('Failed to load dashboard data', e)
-    lastDashboardData = null
-    renderDashboard(null)
+    if (cache) {
+      renderDashboardFromCache(cache.data, 'Cached data · offline')
+      return
+    }
+    renderDashboardError('Connection Error')
+  } finally {
+    dashboardFetchInFlight = false
   }
 }
 
@@ -582,17 +1005,24 @@ if (revToggleBtn) {
   revToggleBtn.addEventListener('click', () => {
     isRevenueUSD = !isRevenueUSD
     revToggleBtn.textContent = isRevenueUSD ? 'USD' : 'SOL'
-    
-    // Re-render the dashboard with the new currency state
+    dashLastDailyRev = 0
+    dashLastBuybacks = 0
     if (lastDashboardData) {
       renderDashboard(lastDashboardData)
-    } else {
-      // Just toggle the mock data if no real data
-      const dailyRevEl = $('dash-daily-rev')
-      const buybacksUsdEl = $('dash-buybacks-usd')
-      
-      if (dailyRevEl) dailyRevEl.textContent = isRevenueUSD ? '$48,529.23' : '◎ 315.42'
-      if (buybacksUsdEl) buybacksUsdEl.textContent = isRevenueUSD ? '$1,342,984.52' : '◎ 8,725.14'
+    }
+  })
+}
+
+// Set up chart range dropdown
+const chartDropdown = document.querySelector('.chart-dropdown') as HTMLSelectElement | null
+if (chartDropdown) {
+  chartDropdown.addEventListener('change', () => {
+    if (lastDashboardData) {
+      const val = chartDropdown.value
+      let days = 7
+      if (val === '30D') days = 30
+      else if (val === 'ALL') days = -1
+      updateChartsFromDaily(lastDashboardData, days)
     }
   })
 }
@@ -601,49 +1031,40 @@ if (revToggleBtn) {
    MOBILE NAVIGATION — Hamburger Menu
    ============================================ */
 function initMobileMenu() {
-  const hamburger = document.getElementById('nav-hamburger')
-  const mobileMenu = document.getElementById('nav-mobile-menu')
-  if (!hamburger || !mobileMenu) return
+  const hamburgerEl = document.getElementById('nav-hamburger')
+  if (!(hamburgerEl instanceof HTMLElement)) return
+  const menuEl = document.getElementById('nav-mobile-menu')
+  if (!(menuEl instanceof HTMLElement)) return
 
-  function openMenu() {
-    mobileMenu.classList.add('open')
-    hamburger!.classList.add('open')
-    hamburger!.setAttribute('aria-expanded', 'true')
-    mobileMenu.setAttribute('aria-hidden', 'false')
-    document.body.style.overflow = 'hidden'
+  const setMenuOpen = (open: boolean) => {
+    menuEl.classList.toggle('open', open)
+    hamburgerEl.classList.toggle('open', open)
+    hamburgerEl.setAttribute('aria-expanded', open ? 'true' : 'false')
+    menuEl.setAttribute('aria-hidden', open ? 'false' : 'true')
+    document.body.style.overflow = open ? 'hidden' : ''
   }
 
-  function closeMenu() {
-    mobileMenu.classList.remove('open')
-    hamburger!.classList.remove('open')
-    hamburger!.setAttribute('aria-expanded', 'false')
-    mobileMenu.setAttribute('aria-hidden', 'true')
-    document.body.style.overflow = ''
-  }
-
-  hamburger.addEventListener('click', () => {
-    const isOpen = mobileMenu.classList.contains('open')
-    isOpen ? closeMenu() : openMenu()
+  hamburgerEl.addEventListener('click', () => {
+    setMenuOpen(!menuEl.classList.contains('open'))
   })
 
-  // Close on any link/button tap
-  mobileMenu.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', closeMenu)
+  menuEl.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setMenuOpen(false))
   })
 
-  // Close on Escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
-      closeMenu()
-      hamburger!.focus()
+    if (e.key === 'Escape' && menuEl.classList.contains('open')) {
+      setMenuOpen(false)
+      hamburgerEl.focus()
     }
   })
 }
 
 initMobileMenu()
+startDashboardTimer()
 
-// Refresh every 180s
-setInterval(loadDashboard, 180_000)
+// Refresh based on interval
+setInterval(loadDashboard, MSK_STATS_REFRESH_MS)
 
 /* ============================================
    6. CONFETTI ON BUY BUTTON
@@ -659,125 +1080,7 @@ if (buyBtn) {
   })
 }
 
-/* ============================================
-   7. MEME LEADERBOARD — X API Integration
-   ============================================ */
-interface LeaderboardPost {
-  id: string
-  text: string
-  likes: number
-  author: string
-  authorAvatar?: string
-}
 
-// Mock data (used when X API isn't configured)
-const MOCK_POSTS: LeaderboardPost[] = [
-  { id: '1', text: '$JAC is going to the moon 🚀🚀🚀 this is the one!! #JustACoin #Solana', likes: 2847, author: '@crypto_whale', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=whale' },
-  { id: '2', text: 'Just aped into $JAC 💎🙌 the community is insane. LFG!!!', likes: 1923, author: '@degen_trader', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=degen' },
-  { id: '3', text: 'If you\'re sleeping on $JAC you\'re ngmi 😂 best meme coin on SOL right now', likes: 1456, author: '@sol_maxi', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=maxi' },
-  { id: '4', text: '$JAC holders are true diamond hands. This community doesn\'t fold 🔥', likes: 987, author: '@meme_lord', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=lord' },
-  { id: '5', text: 'Literally just a coin but the vibes are immaculate 🪙✨ $JAC', likes: 743, author: '@alpha_caller', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=alpha' },
-  { id: '6', text: '$JAC x Solana = unstoppable combo 🌐 wen $1B?', likes: 612, author: '@sol_degen99', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=sol' },
-  { id: '7', text: 'Bought the dip on $JAC — again. This is the way 📈', likes: 534, author: '@buythedip', authorAvatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=dip' },
-]
-
-async function fetchFromXApi(): Promise<LeaderboardPost[]> {
-  if (!CONFIG.X_BEARER_TOKEN) return MOCK_POSTS
-
-  try {
-    const res = await fetch(
-      'https://api.twitter.com/2/tweets/search/recent?query=%24JAC&tweet.fields=public_metrics,author_id&expansions=author_id&user.fields=username,profile_image_url&max_results=10',
-      {
-        headers: {
-          Authorization: `Bearer ${CONFIG.X_BEARER_TOKEN}`,
-        },
-      }
-    )
-
-    if (!res.ok) {
-      console.warn('X API returned', res.status, '— using mock data')
-      return MOCK_POSTS
-    }
-
-    const data = await res.json()
-    const users = new Map<string, { username: string; avatar: string }>()
-
-    if (data.includes?.users) {
-      for (const u of data.includes.users) {
-        users.set(u.id, { username: u.username, avatar: u.profile_image_url })
-      }
-    }
-
-    if (!data.data) return MOCK_POSTS
-
-    const posts: LeaderboardPost[] = data.data.map((tweet: any) => {
-      const user = users.get(tweet.author_id)
-      return {
-        id: tweet.id,
-        text: tweet.text,
-        likes: tweet.public_metrics?.like_count || 0,
-        author: user ? `@${user.username}` : '@unknown',
-        authorAvatar: user?.avatar,
-      }
-    })
-
-    posts.sort((a, b) => b.likes - a.likes)
-    return posts.length > 0 ? posts : MOCK_POSTS
-  } catch (e) {
-    console.warn('X API fetch failed, using mock data:', e)
-    return MOCK_POSTS
-  }
-}
-
-async function loadLeaderboard() {
-  const posts = await fetchFromXApi()
-  const podiumContainer = $('podium-container')
-  const listContainer = $('leaderboard-list')
-
-  if (!podiumContainer || !listContainer) return
-
-  const top3 = posts.slice(0, 3)
-  const rest = posts.slice(3)
-
-  const rankClasses = ['gold-rank', 'silver-rank', 'bronze-rank']
-  const rankEmojis = ['🥇', '🥈', '🥉']
-
-  podiumContainer.innerHTML = top3
-    .map(
-      (post, i) => `
-    <div class="glass-card podium-card ${rankClasses[i]}">
-      <div class="podium-rank">${rankEmojis[i]}</div>
-      ${post.authorAvatar
-          ? `<img src="${post.authorAvatar}" class="podium-avatar" alt="${post.author}">`
-          : `<div class="podium-avatar"></div>`
-        }
-      <div class="podium-handle">${post.author}</div>
-      <div class="podium-text">${post.text.slice(0, 120)}${post.text.length > 120 ? '…' : ''}</div>
-      <div class="podium-likes">❤️ ${post.likes.toLocaleString()}</div>
-    </div>
-  `
-    )
-    .join('')
-
-  listContainer.innerHTML = rest
-    .map(
-      (post, i) => `
-    <div class="glass-card leaderboard-item">
-      <div class="leaderboard-item-rank">#${i + 4}</div>
-      ${post.authorAvatar
-          ? `<img src="${post.authorAvatar}" class="podium-avatar" style="width: 36px; height: 36px; margin: 0;" alt="${post.author}">`
-          : `<div class="podium-avatar" style="width: 36px; height: 36px; margin: 0;"></div>`
-        }
-      <div class="leaderboard-item-content">
-        <div class="leaderboard-item-handle">${post.author}</div>
-        <div class="leaderboard-item-text">${post.text.slice(0, 100)}${post.text.length > 100 ? '…' : ''}</div>
-      </div>
-      <div class="leaderboard-item-likes" style="display: flex; align-items: center;">❤️ ${post.likes.toLocaleString()}</div>
-    </div>
-  `
-    )
-    .join('')
-}
 
 /* ============================================
    8. COPY BUTTONS (Contract & Wallet)
@@ -864,6 +1167,6 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
 
 // Start loading data in the background immediately
 loadStats()
-loadLeaderboard()
+
 initCharts()
 loadDashboard()

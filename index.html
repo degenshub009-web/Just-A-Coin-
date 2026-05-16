@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$JAC — Just A Coin | Solana Meme Token</title>
     <meta name="description"
-        content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement — memes, giveaways, and moon missions.">
+        content="$JAC is a community-driven meme token on the Solana blockchain. Join the movement. Memes, giveaways, and moon missions.">
     <link rel="icon" type="image/png" href="/jac.png">
 
     <!-- Preload critical assets -->
@@ -116,13 +116,14 @@
             <li><a href="#stats-bar">Stats</a></li>
             <li><a href="#chart-section">Chart</a></li>
             <li><a href="#dashboard-section">Dashboard</a></li>
-            <li><a href="#leaderboard-section">Leaderboard</a></li>
+
             <li><a href="#roadmap-section">Roadmap</a></li>
             <li><a href="#community-wallet">Wallet</a></li>
         </ul>
         <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
             target="_blank" class="btn btn-primary nav-cta btn-pulse">BUY $JAC</a>
-        <button class="nav-hamburger" id="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-mobile-menu">
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Open navigation menu" aria-expanded="false"
+            aria-controls="nav-mobile-menu">
             <span></span>
             <span></span>
             <span></span>
@@ -134,7 +135,7 @@
         <a href="#stats-bar">Stats</a>
         <a href="#chart-section">Chart</a>
         <a href="#dashboard-section">Dashboard</a>
-        <a href="#leaderboard-section">Leaderboard</a>
+
         <a href="#roadmap-section">Roadmap</a>
         <a href="#community-wallet">Wallet</a>
         <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=E714f3oiK3sA8WGBBpmgx7Vkptz7Xh7H9YNWjpkLpump"
@@ -204,12 +205,54 @@
             </div>
         </section>
 
+        <!-- UTILITY ECOSYSTEM -->
+        <section id="utility-section">
+            <h2 class="section-title reveal">UTILITY ECOSYSTEM</h2>
+            <p class="section-subtitle reveal">The engine room of $JAC. Real tools generating real value.</p>
+            
+            <div class="utility-grid">
+                <!-- Card 1: Booster Bot -->
+                <div class="glass-card utility-card reveal">
+                    <div class="utility-icon booster">🚀</div>
+                    <h3 class="utility-name">DEX RANK & VOLUME BOOSTER</h3>
+                    <p class="utility-desc">The ultimate tool for project growth. Boost your rank and maintain organic-looking volume on all major DEXs.</p>
+                    <a href="https://t.me/jacBooster_bot" target="_blank" class="utility-link">Launch @jacBooster_bot →</a>
+                </div>
+
+                <!-- Card 2: GodFather Bot -->
+                <div class="glass-card utility-card reveal">
+                    <div class="utility-icon godfather">🕴️</div>
+                    <h3 class="utility-name">MULTI-FEATURE TRENDING BOT</h3>
+                    <p class="utility-desc">The "Godfather" of meme tools. Multi-channel trending, automated alerts, and powerful ecosystem integration.</p>
+                    <a href="https://t.me/GodFather_memeBOT" target="_blank" class="utility-link">Launch @GodFather_memeBOT →</a>
+                </div>
+
+                <!-- Card 3: JAC Swap -->
+                <div class="glass-card utility-card reveal">
+                    <div class="utility-icon swap">🔄</div>
+                    <h3 class="utility-name">$JAC SWAP</h3>
+                    <p class="utility-desc">Fast, secure, and optimized for the Solana ecosystem. The official gateway for trading $JAC and partner tokens.</p>
+                    <a href="https://jacswap.online" target="_blank" class="utility-link">Visit Jacswap.online →</a>
+                </div>
+            </div>
+
+            <!-- Value Proposition Banner -->
+            <div class="value-banner reveal">
+                <div class="value-content">
+                    <span class="value-highlight">20% CHEAPER</span> than market competitors & <span class="text-highlight">MORE EFFECTIVE</span>
+                </div>
+            </div>
+        </section>
+
         <!-- LIVE BOT DASHBOARD -->
         <section id="dashboard-section">
+            <div class="dashboard-slogan reveal">FUELING THE FUTURE OF JAC.</div>
             <div class="dashboard-header-text reveal" style="text-align: center; margin-bottom: 40px;">
                 <h2 class="section-title" style="margin-bottom: 8px;">BOT PERFORMANCE</h2>
-                <p class="section-subtitle" style="margin: 0 auto; font-size: 1.1rem;">$JAC is a <span class="text-highlight">revenue-generating</span> coin.</p>
-                <div class="dashboard-live-indicator" style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border-glass);">
+                <p class="section-subtitle" style="margin: 0 auto; font-size: 1.1rem;">$JAC is a <span
+                        class="text-highlight">revenue-generating</span> coin.</p>
+                <div class="dashboard-live-indicator"
+                    style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border-glass);">
                     <span class="live-dot" id="dash-live-dot"></span>
                     <span class="live-text" id="dash-last-updated">Live Data</span>
                 </div>
@@ -222,20 +265,27 @@
                         <div class="stat-label">TOTAL REVENUE (LIFETIME)</div>
                         <button class="revenue-toggle" id="revenue-toggle-btn">USD</button>
                     </div>
-                    <div class="stat-value large-value" id="dash-revenue" style="color: var(--gold); font-size: clamp(2rem, 4vw, 3.5rem);"><span class="skeleton-text">0.00</span></div>
+                    <div class="stat-value large-value" id="dash-revenue"
+                        style="color: var(--gold); font-size: clamp(2rem, 4vw, 3.5rem);"><span
+                            class="skeleton-text">0.00</span></div>
                     <div class="sparkline-mini"><canvas id="heroSparkline"></canvas></div>
                 </div>
 
                 <!-- 3. Total Burned -->
-                <div class="glass-card dash-small-card dash-card-large burn-card" style="position: relative; overflow: hidden;">
+                <div class="glass-card dash-small-card dash-card-large burn-card"
+                    style="position: relative; overflow: hidden;">
                     <div class="burn-fire-glow" id="burn-glow"></div>
                     <div style="position:relative; z-index:2; display: flex; flex-direction: column; height: 100%;">
                         <div class="card-icon burn-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                            </svg>
                         </div>
-                        <div class="stat-label">TOTAL $JAC BURNED</div>
-                        <div class="stat-value" id="dash-burned" style="font-size: clamp(2rem, 4vw, 3.5rem);"><span class="skeleton-text">0.00</span></div>
-                        <div class="stat-subtext" style="color: var(--gold); margin-bottom: 12px; font-size: 1.1rem;">$<span id="dash-burned-usd"><span class="skeleton-text">0.00</span></span> USD</div>
+                        <div class="stat-label">TOTAL $JAC BURNED (LIFETIME)</div>
+                        <div class="stat-value" id="dash-burned" style="font-size: clamp(2rem, 4vw, 3.5rem);"><span
+                                class="skeleton-text">0.00</span></div>
                         <div class="sparkline-mini"><canvas id="sparklineBurn"></canvas></div>
                     </div>
                 </div>
@@ -243,54 +293,63 @@
                 <!-- 2. Daily Revenue -->
                 <div class="glass-card dash-small-card">
                     <div class="card-icon revenue-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
                     </div>
                     <div class="stat-label">DAILY REVENUE</div>
                     <div class="stat-value" id="dash-daily-rev"><span class="skeleton-text">0.00</span></div>
-                    <div class="stat-change positive">+18.6% vs yesterday</div>
+                    <div class="stat-change" id="dash-daily-rev-change"></div>
                     <div class="sparkline-mini"><canvas id="sparklineRev"></canvas></div>
                 </div>
 
                 <!-- 4. Buybacks Executed -->
                 <div class="glass-card dash-small-card">
                     <div class="card-icon buyback-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                            <path d="M3 3v5h5" />
+                        </svg>
                     </div>
                     <div class="stat-label">BUYBACKS EXECUTED</div>
                     <div class="stat-value" id="dash-buybacks-usd"><span class="skeleton-text">0.00</span></div>
-                    <div class="stat-change positive">+12.4% vs yesterday</div>
+                    <div class="stat-change" id="dash-buybacks-change"></div>
                     <div class="sparkline-mini"><canvas id="sparklineBuy"></canvas></div>
                 </div>
 
                 <!-- 5. Active Users -->
                 <div class="glass-card dash-small-card">
                     <div class="card-icon supply-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
                     </div>
                     <div class="stat-label">ACTIVE USERS OF BOT</div>
                     <div class="stat-value" id="dash-active-users"><span class="skeleton-text">0.00</span></div>
-                    <div class="stat-change positive">+5.2% vs yesterday</div>
+                    <div class="stat-change" id="dash-users-change"></div>
                     <div class="sparkline-mini"><canvas id="sparklineUsers"></canvas></div>
                 </div>
 
-                <!-- 6. Transactions Per Day -->
-                <div class="glass-card dash-small-card">
-                    <div class="card-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                    </div>
-                    <div class="stat-label">TRANSACTIONS PER DAY</div>
-                    <div class="stat-value" id="dash-tx-per-day"><span class="skeleton-text">0.00</span></div>
-                    <div class="stat-change positive">+8.9% vs yesterday</div>
-                    <div class="sparkline-mini"><canvas id="sparklineTx"></canvas></div>
-                </div>
             </div>
 
             <div class="dashboard-grid-main reveal">
                 <!-- Line Chart -->
                 <div class="glass-card dash-chart-card">
-                    <div class="dashboard-card-header" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; margin-bottom: 20px;">
+                    <div class="dashboard-card-header"
+                        style="border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; margin-bottom: 20px;">
                         <div class="stat-label">REVENUE OVER TIME</div>
-                        <select class="chart-dropdown"><option>7D</option><option>30D</option><option>ALL</option></select>
+                        <select class="chart-dropdown">
+                            <option>7D</option>
+                            <option>30D</option>
+                            <option>ALL</option>
+                        </select>
                     </div>
                     <div class="chart-wrapper">
                         <canvas id="revenueChart"></canvas>
@@ -299,7 +358,8 @@
             </div>
 
             <div class="glass-card dashboard-table-card reveal">
-                <div class="dashboard-card-header" style="border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; margin-bottom: 16px;">
+                <div class="dashboard-card-header"
+                    style="border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; margin-bottom: 16px;">
                     <div class="stat-label">LIVE BUYBACKS & BURNS</div>
                     <a href="#" class="view-all-btn">View All →</a>
                 </div>
@@ -315,102 +375,79 @@
                                 <th>TX HASH</th>
                             </tr>
                         </thead>
-                        <tbody id="dash-tx-table">
-                            <!-- Mock Data -->
-                            <tr>
-                                <td data-label="Time">2m ago</td>
-                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
-                                <td data-label="Amount">152.35 SOL</td>
-                                <td data-label="$JAC Bought">107,231,652</td>
-                                <td data-label="$JAC Burned">–</td>
-                                <td data-label="TX Hash"><a href="#" target="_blank">7xGf...kL3a</a></td>
-                            </tr>
-                            <tr>
-                                <td data-label="Time">4m ago</td>
-                                <td data-label="Type"><span class="type-burn">🔥 Burn</span></td>
-                                <td data-label="Amount">–</td>
-                                <td data-label="$JAC Bought">–</td>
-                                <td data-label="$JAC Burned">1,250,764</td>
-                                <td data-label="TX Hash"><a href="#" target="_blank">9mNx...pQ2s</a></td>
-                            </tr>
-                            <tr>
-                                <td data-label="Time">10m ago</td>
-                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
-                                <td data-label="Amount">101.42 SOL</td>
-                                <td data-label="$JAC Bought">71,298,541</td>
-                                <td data-label="$JAC Burned">–</td>
-                                <td data-label="TX Hash"><a href="#" target="_blank">3LkP...z9Tu</a></td>
-                            </tr>
-                            <tr>
-                                <td data-label="Time">12m ago</td>
-                                <td data-label="Type"><span class="type-burn">🔥 Burn</span></td>
-                                <td data-label="Amount">–</td>
-                                <td data-label="$JAC Bought">–</td>
-                                <td data-label="$JAC Burned">832,014</td>
-                                <td data-label="TX Hash"><a href="#" target="_blank">8QaB...mZ1x</a></td>
-                            </tr>
-                            <tr>
-                                <td data-label="Time">15m ago</td>
-                                <td data-label="Type"><span class="type-buyback">🛒 Buyback</span></td>
-                                <td data-label="Amount">85.90 SOL</td>
-                                <td data-label="$JAC Bought">60,431,223</td>
-                                <td data-label="$JAC Burned">–</td>
-                                <td data-label="TX Hash"><a href="#" target="_blank">Df7s...aP8w</a></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="dash-tx-table"></tbody>
                     </table>
                 </div>
             </div>
-            
+
             <div class="dashboard-features reveal">
                 <div class="feature-item">
                     <div class="feature-icon" style="color: #a855f7;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="10" rx="2" />
+                            <circle cx="12" cy="5" r="2" />
+                            <path d="M12 7v4" />
+                            <line x1="8" y1="16" x2="8" y2="16" />
+                            <line x1="16" y1="16" x2="16" y2="16" />
+                        </svg>
                     </div>
-                    <div class="feature-text"><strong>Real Utility</strong><br/>Revenue comes from real products used every day.</div>
+                    <div class="feature-text"><strong>Real Utility</strong><br />Revenue comes from real products used
+                        every day.</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon" style="color: #10b981;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                            <path d="M3 3v5h5" />
+                        </svg>
                     </div>
-                    <div class="feature-text"><strong>Auto Buyback</strong><br/>A % of revenue is used to buy $JAC from the open market.</div>
+                    <div class="feature-text"><strong>Auto Buyback</strong><br />A % of revenue is used to buy $JAC from
+                        the open market.</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon" style="color: #f97316;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                        </svg>
                     </div>
-                    <div class="feature-text"><strong>Auto Burn</strong><br/>Bought tokens are burned forever, reducing supply.</div>
+                    <div class="feature-text"><strong>Auto Burn</strong><br />Bought tokens are burned forever, reducing
+                        supply.</div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon" style="color: #3b82f6;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
                     </div>
-                    <div class="feature-text"><strong>Transparency</strong><br/>All data is on-chain and updated in real-time.</div>
+                    <div class="feature-text"><strong>Transparency</strong><br />All data is on-chain and updated in
+                        real-time.</div>
                 </div>
             </div>
         </section>
 
-        <!-- MEME LEADERBOARD -->
-        <section id="leaderboard-section">
-            <h2 class="section-title reveal">🏆 MEME LEADERBOARD</h2>
-            <p class="section-subtitle reveal">Top posts about $JAC on X — most reactions wins the giveaway!</p>
-
-            <!-- Podium Top 3 -->
-            <div class="podium reveal" id="podium-container">
-                <!-- Populated by JS -->
-            </div>
-
-            <!-- Remaining posts -->
-            <div class="leaderboard-list reveal" id="leaderboard-list">
-                <!-- Populated by JS -->
-            </div>
-
-            <div class="giveaway-banner reveal">
-                🎁 GIVEAWAY ACTIVE — The post with the most reactions wins. Keep posting!
+        <!-- COMING SOON TEASER -->
+        <section id="teaser-section">
+            <div class="glass-card teaser-banner reveal">
+                <div class="teaser-content">
+                    <div class="teaser-badge">COMING SOON</div>
+                    <h2 class="teaser-title">MICRO LOANS OPTION</h2>
+                    <p class="teaser-description">Empowering the $JAC community with decentralized micro-lending solutions. Fast, secure, and fully transparent.</p>
+                </div>
+                <div class="teaser-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <line x1="19" y1="8" x2="19" y2="14" />
+                        <line x1="16" y1="11" x2="22" y2="11" />
+                    </svg>
+                </div>
             </div>
         </section>
-
-        <!-- ROADMAP -->
         <section id="roadmap-section">
             <h2 class="section-title reveal">ROADMAP</h2>
             <p class="section-subtitle reveal">From launch to legendary</p>

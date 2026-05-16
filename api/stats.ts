@@ -2,7 +2,10 @@ export const config = {
   runtime: 'edge',
 }
 
-export default async function handler(req: Request) {
+/** MSK API allows 1 request per minute — CDN cache must not go below this. */
+const CACHE_SECONDS = 60
+
+export default async function handler(_req: Request) {
   try {
     const apiKey = process.env.MSK_API_KEY || ''
     const response = await fetch('https://api.msktechnology.com.au/stats', {
@@ -11,20 +14,13 @@ export default async function handler(req: Request) {
       },
     })
 
-    if (!response.ok) {
-      return new Response(JSON.stringify({ error: 'Failed to fetch from MSK API' }), {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+    const body = await response.text()
 
-    const data = await response.json()
-
-    return new Response(JSON.stringify(data), {
-      status: 200,
+    return new Response(body, {
+      status: response.status,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 's-maxage=180, stale-while-revalidate=59',
+        'Cache-Control': `s-maxage=${CACHE_SECONDS}, stale-while-revalidate=${CACHE_SECONDS}`,
       },
     })
   } catch (error) {
