@@ -1822,7 +1822,7 @@ section {
 
 .utility-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-bottom: 40px;
 }
@@ -1909,12 +1909,10 @@ section {
 
 @media (max-width: 1024px) {
   .utility-grid { grid-template-columns: repeat(2, 1fr); }
-  .utility-card:last-child { grid-column: span 2; }
 }
 
 @media (max-width: 768px) {
   .utility-grid { grid-template-columns: 1fr; }
-  .utility-card:last-child { grid-column: span 1; }
   .value-content { font-size: 1rem; }
 }
 
