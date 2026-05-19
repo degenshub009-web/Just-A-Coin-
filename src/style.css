@@ -1907,6 +1907,15 @@ section {
   text-shadow: 0 0 10px rgba(247, 181, 0, 0.3);
 }
 
+@media (min-width: 769px) {
+  .utility-card:nth-child(5) {
+    grid-column: span 2;
+  }
+  .utility-card:nth-child(5) .utility-desc {
+    max-width: 600px;
+  }
+}
+
 @media (max-width: 1024px) {
   .utility-grid { grid-template-columns: repeat(2, 1fr); }
 }
